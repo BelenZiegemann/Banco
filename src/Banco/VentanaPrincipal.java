@@ -50,6 +50,8 @@ public class VentanaPrincipal extends JFrame {
 		JMenu mFunciones = new JMenu("Funciones");
 		menuBar.add(mFunciones);
 		
+		getContentPane().setLayout(null);
+		
 		JDesktopPane desktopPane = new JDesktopPane();
 		desktopPane.setBounds(0, 0, 1, 1);
 		getContentPane().add(desktopPane);

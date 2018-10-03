@@ -1,26 +1,20 @@
 package Banco;
 
-
 import java.awt.EventQueue;
-
-
-import javax.swing.JDesktopPane;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JFrame;
-
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JInternalFrame;
-
-
-//import batallas.VentanaAbmBatallas;
-//import batallas.VentanaBarcos;
-//import batallas.VentanaConsultas;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JButton;
 
 @SuppressWarnings("serial")
 public class VentanaPrincipal extends JFrame {
-	
 
+	private JPanel contentPane;
+	private Consulta consultaPass;
+	
 	/**
 	 * Launch the application.
 	 */
@@ -41,25 +35,37 @@ public class VentanaPrincipal extends JFrame {
 	 * Create the frame.
 	 */
 	public VentanaPrincipal() {
+		setTitle("Banco");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setBounds(100, 100, 600, 400);
+		setBounds(100, 100, 450, 300);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
 		
-		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
 		
-		JMenu mFunciones = new JMenu("Funciones");
-		menuBar.add(mFunciones);
+		JButton btnConsultas = new JButton("Consultas");
+		btnConsultas.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				consultaPass=new Consulta();
+				consultaPass.setVisible(true);
+				
+			}
+		});
+		btnConsultas.setBounds(30, 74, 118, 23);
+		contentPane.add(btnConsultas);
 		
-		getContentPane().setLayout(null);
 		
-		JDesktopPane desktopPane = new JDesktopPane();
-		desktopPane.setBounds(0, 0, 1, 1);
-		getContentPane().add(desktopPane);
+		JButton btnSalir = new JButton("Salir");
+		btnSalir.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
+		btnSalir.setBounds(183, 227, 89, 23);
+		contentPane.add(btnSalir);
 		
-		JInternalFrame internalFrame = new JInternalFrame("New JInternalFrame");
-		internalFrame.setBounds(0, 0, 55, 34);
-		desktopPane.add(internalFrame);
-		internalFrame.setVisible(true);
-	
+		
+			
 	}
 }

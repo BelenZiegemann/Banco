@@ -15,6 +15,7 @@ public class VentanaPrincipal extends JFrame {
 	private JPanel contentPane;
 	private Consulta consultaPass;
 	private Cajero cajero;
+	private Prestamos prestamo;
 	
 	/**
 	 * Launch the application.
@@ -53,7 +54,7 @@ public class VentanaPrincipal extends JFrame {
 				
 			}
 		});
-		btnConsultas.setBounds(30, 74, 118, 23);
+		btnConsultas.setBounds(10, 74, 110, 23);
 		contentPane.add(btnConsultas);
 		
 		
@@ -63,7 +64,7 @@ public class VentanaPrincipal extends JFrame {
 				System.exit(0);
 			}
 		});
-		btnSalir.setBounds(183, 227, 89, 23);
+		btnSalir.setBounds(169, 210, 89, 23);
 		contentPane.add(btnSalir);
 		
 		JButton btnCajero = new JButton("Cajero");
@@ -73,8 +74,18 @@ public class VentanaPrincipal extends JFrame {
 				cajero.setVisible(true);
 			}
 		});
-		btnCajero.setBounds(183, 74, 89, 23);
+		btnCajero.setBounds(155, 74, 89, 23);
 		contentPane.add(btnCajero);
+		
+		JButton btnAdministracion = new JButton("Prestamos ");
+		btnAdministracion.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				prestamo=new Prestamos();
+				prestamo.setVisible(true);
+			}
+		});
+		btnAdministracion.setBounds(290, 74, 110, 23);
+		contentPane.add(btnAdministracion);
 		
 		
 			

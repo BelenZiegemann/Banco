@@ -50,7 +50,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          this.setBounds(0, 0, 800, 600);
          setVisible(true);
          BorderLayout thisLayout = new BorderLayout();
-         this.setTitle("Consultas (Utilizando DBTable)");
+         this.setTitle("Banco-Consultas");
          getContentPane().setLayout(thisLayout);
          //this.setClosable(true);
          this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);

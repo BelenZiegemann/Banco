@@ -14,6 +14,7 @@ public class VentanaPrincipal extends JFrame {
 
 	private JPanel contentPane;
 	private Consulta consultaPass;
+	private Cajero cajero;
 	
 	/**
 	 * Launch the application.
@@ -64,6 +65,16 @@ public class VentanaPrincipal extends JFrame {
 		});
 		btnSalir.setBounds(183, 227, 89, 23);
 		contentPane.add(btnSalir);
+		
+		JButton btnCajero = new JButton("Cajero");
+		btnCajero.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				cajero=new Cajero();
+				cajero.setVisible(true);
+			}
+		});
+		btnCajero.setBounds(183, 74, 89, 23);
+		contentPane.add(btnCajero);
 		
 		
 			

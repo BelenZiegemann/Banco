@@ -76,7 +76,7 @@ public class Consulta extends JFrame {
 	 *Caso contrario, abrir la ventana consultaSQL*/
 	public void chequeoPassword(){
 		password=pField.getText();
-		if(password.equals("hola"))
+		if(password.equals("admin"))
 			JOptionPane.showMessageDialog(null, "anda");
 	}
 	

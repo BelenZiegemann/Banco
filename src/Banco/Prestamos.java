@@ -7,17 +7,21 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class Prestamos extends JFrame {
 
 	private JPanel contentPane;
-	private JTextField textField;
-	private JPasswordField passwordField;
-
+	private JTextField tLegajo;
+	private JPasswordField passEmpleado;
+	private String legajo;
+	private String password;
 	/**
 	 * Launch the application.
 	 */
@@ -54,16 +58,22 @@ public class Prestamos extends JFrame {
 		lblPassword.setBounds(27, 44, 70, 14);
 		contentPane.add(lblPassword);
 		
-		textField = new JTextField();
-		textField.setBounds(137, 8, 86, 20);
-		contentPane.add(textField);
-		textField.setColumns(10);
+		tLegajo = new JTextField();
+		tLegajo.setBounds(137, 8, 86, 20);
+		contentPane.add(tLegajo);
+		tLegajo.setColumns(10);
 		
-		passwordField = new JPasswordField();
-		passwordField.setBounds(137, 41, 86, 20);
-		contentPane.add(passwordField);
+		passEmpleado = new JPasswordField();
+		passEmpleado.setBounds(137, 41, 86, 20);
+		contentPane.add(passEmpleado);
 		
 		JButton btnIngresar = new JButton("Ingresar");
+		btnIngresar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				legajo=tLegajo.getText();
+				password=passEmpleado.getText();
+			}
+		});
 		btnIngresar.setBounds(134, 100, 89, 23);
 		contentPane.add(btnIngresar);
 	}

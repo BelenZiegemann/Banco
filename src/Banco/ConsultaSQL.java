@@ -88,18 +88,22 @@ public class ConsultaSQL extends javax.swing.JFrame
             }
             {
             	botonBorrar = new JButton();
-            	botonBorrar.setBounds(607, 81, 63, 23);
+            	botonBorrar.setBounds(657, 31, 89, 23);
             	pnlConsulta.add(botonBorrar);
             	botonBorrar.setText("Borrar");            
             	{
             	   btnEjecutar = new JButton();
-            	   btnEjecutar.setBounds(675, 81, 73, 23);
+            	   btnEjecutar.setBounds(657, 65, 89, 23);
             	   pnlConsulta.add(btnEjecutar);
             	   btnEjecutar.setText("Ejecutar");
             	   
-            	   JButton btnNewButton = new JButton("New button");
-            	   btnNewButton.setBounds(637, 115, 89, 23);
-            	   pnlConsulta.add(btnNewButton);
+            	   JButton bLista = new JButton("Lista");
+            	   bLista.addActionListener(new ActionListener() {
+            	   	public void actionPerformed(ActionEvent e) {
+            	   	}
+            	   });
+            	   bLista.setBounds(657, 99, 89, 23);
+            	   pnlConsulta.add(bLista);
             	   btnEjecutar.addActionListener(new ActionListener() {
             	      public void actionPerformed(ActionEvent evt) {
             	         btnEjecutarActionPerformed(evt);

@@ -104,5 +104,10 @@ public class Cajero extends JFrame {
 		bPeriodo.setBounds(372, 11, 149, 23);
 		pConsulta.add(bPeriodo);
 		bPeriodo.setEnabled(false);
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(0, 57, 531, 175);
+		pConsulta.add(panel);
+		panel.setLayout(null);
 	}
 }

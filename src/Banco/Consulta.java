@@ -60,9 +60,16 @@ public class Consulta extends JFrame {
 		btnIngresar = new JButton("Ingresar");
 		btnIngresar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				consul=new ConsultaSQL();
-				consul.setVisible(true);
-				dispose();
+				password=pField.getText();
+				if(password.equals("admin")){
+					consul=new ConsultaSQL();
+					consul.setVisible(true);
+					dispose();
+				}
+				else{
+					JOptionPane.showMessageDialog(null, "Contraseña Incorrecta");
+				}
+				
 			}
 		});
 		btnIngresar.setBounds(206, 139, 89, 23);
@@ -71,13 +78,6 @@ public class Consulta extends JFrame {
 		
 	}
 
-	/*
-	 *Si el password es incorrecto, mostrar un mensaje de error y cerrar ventana.
-	 *Caso contrario, abrir la ventana consultaSQL*/
-	public void chequeoPassword(){
-		password=pField.getText();
-		if(password.equals("admin"))
-			JOptionPane.showMessageDialog(null, "anda");
-	}
 	
-}//
+	
+}//principal.

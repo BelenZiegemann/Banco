@@ -64,6 +64,7 @@ public class VentanaPrincipal extends JFrame {
 				System.exit(0);
 			}
 		});
+		
 		btnSalir.setBounds(169, 210, 89, 23);
 		contentPane.add(btnSalir);
 		

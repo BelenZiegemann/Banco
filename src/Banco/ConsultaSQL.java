@@ -49,9 +49,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          setPreferredSize(new Dimension(800, 600));
          this.setBounds(0, 0, 800, 600);
          setVisible(true);
-         BorderLayout thisLayout = new BorderLayout();
          this.setTitle("Banco-Consultas");
-         getContentPane().setLayout(thisLayout);
          //this.setClosable(true);
          this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
          //this.setMaximizable(true);
@@ -63,11 +61,15 @@ public class ConsultaSQL extends javax.swing.JFrame
                thisComponentShown(evt);
             }
          });
+         getContentPane().setLayout(null);
          {
             pnlConsulta = new JPanel();
-            getContentPane().add(pnlConsulta, BorderLayout.NORTH);
+            pnlConsulta.setBounds(0, 0, 784, 186);
+            getContentPane().add(pnlConsulta);
+            pnlConsulta.setLayout(null);
             {
                scrConsulta = new JScrollPane();
+               scrConsulta.setBounds(36, 5, 566, 176);
                pnlConsulta.add(scrConsulta);
                {
                   txtConsulta = new JTextArea();
@@ -76,7 +78,7 @@ public class ConsultaSQL extends javax.swing.JFrame
                   txtConsulta.setColumns(80);
                   txtConsulta.setBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED));
                   txtConsulta.setText("SELECT  \n" +
-                                      "FROM batallas  \n" +
+                                      "FROM   \n" +
                                       "WHERE  \n" +
                                       "AND  \n" +
                                       "ORDER BY ");
@@ -85,19 +87,25 @@ public class ConsultaSQL extends javax.swing.JFrame
                }
             }
             {
-               btnEjecutar = new JButton();
-               pnlConsulta.add(btnEjecutar);
-               btnEjecutar.setText("Ejecutar");
-               btnEjecutar.addActionListener(new ActionListener() {
-                  public void actionPerformed(ActionEvent evt) {
-                     btnEjecutarActionPerformed(evt);
-                  }
-               });
-            }
-            {
             	botonBorrar = new JButton();
+            	botonBorrar.setBounds(607, 81, 63, 23);
             	pnlConsulta.add(botonBorrar);
             	botonBorrar.setText("Borrar");            
+            	{
+            	   btnEjecutar = new JButton();
+            	   btnEjecutar.setBounds(675, 81, 73, 23);
+            	   pnlConsulta.add(btnEjecutar);
+            	   btnEjecutar.setText("Ejecutar");
+            	   
+            	   JButton btnNewButton = new JButton("New button");
+            	   btnNewButton.setBounds(637, 115, 89, 23);
+            	   pnlConsulta.add(btnNewButton);
+            	   btnEjecutar.addActionListener(new ActionListener() {
+            	      public void actionPerformed(ActionEvent evt) {
+            	         btnEjecutarActionPerformed(evt);
+            	      }
+            	   });
+            	}
             	botonBorrar.addActionListener(new ActionListener() {
             		public void actionPerformed(ActionEvent arg0) {
             		  txtConsulta.setText("");            			
@@ -108,9 +116,10 @@ public class ConsultaSQL extends javax.swing.JFrame
          {
         	// crea la tabla  
         	tabla = new DBTable();
+        	tabla.setBounds(0, 186, 784, 375);
         	
         	// Agrega la tabla al frame (no necesita JScrollPane como Jtable)
-            getContentPane().add(tabla, BorderLayout.CENTER);           
+            getContentPane().add(tabla);           
                       
            // setea la tabla para sólo lectura (no se puede editar su contenido)  
            tabla.setEditable(false);       
@@ -229,7 +238,5 @@ public class ConsultaSQL extends javax.swing.JFrame
       }
       
    }
-
-   
 }
 

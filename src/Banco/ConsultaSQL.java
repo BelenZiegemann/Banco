@@ -75,11 +75,11 @@ public class ConsultaSQL extends javax.swing.JFrame
                   txtConsulta.setTabSize(3);
                   txtConsulta.setColumns(80);
                   txtConsulta.setBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED));
-                  txtConsulta.setText("SELECT t.fecha, t.nombre_batalla, b.nombre_barco, b.id, b.capitan, r.resultado \n" +
-                                      "FROM batallas t, resultados r, barcos b \n" +
-                                      "WHERE t.nombre_batalla = r.nombre_batalla \n" +
-                                      "AND r.nombre_barco = b.nombre_barco \n" +
-                                      "ORDER BY t.fecha, t.nombre_batalla, b.nombre_barco");
+                  txtConsulta.setText("SELECT  \n" +
+                                      "FROM batallas  \n" +
+                                      "WHERE  \n" +
+                                      "AND  \n" +
+                                      "ORDER BY ");
                   txtConsulta.setFont(new java.awt.Font("Monospaced",0,12));
                   txtConsulta.setRows(10);
                }

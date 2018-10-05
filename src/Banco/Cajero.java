@@ -10,12 +10,18 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.JButton;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
 import java.awt.event.ActionEvent;
 
 @SuppressWarnings("serial")
 public class Cajero extends JFrame {
 
 	private JPanel contentPane;
+	
+	private long nroTarjeta;
+	
+	
+	protected Connection conexionBD = null;
 
 	/**
 	 * Launch the application.
@@ -50,16 +56,27 @@ public class Cajero extends JFrame {
 		contentPane.add(pBotones);
 		
 		JButton bConsulta = new JButton("Consulta de saldo");
+		bConsulta.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				oyenteConsultaSaldo();
+			}
+		});
 		pBotones.add(bConsulta);
 		
 		JButton bMovimientos = new JButton("Ultimos movimientos");
 		bMovimientos.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				oyenteConsultaMovimiento();
 			}
 		});
 		pBotones.add(bMovimientos);
 		
 		JButton bPeriodo = new JButton("Movimientos por periodo");
+		bPeriodo.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				oyenteConsultaPeriodos();
+			}
+		});
 		pBotones.add(bPeriodo);
 		
 		JPanel panel = new JPanel();
@@ -67,4 +84,17 @@ public class Cajero extends JFrame {
 		contentPane.add(panel);
 		panel.setLayout(null);
 	}
-}
+	
+	
+	private void oyenteConsultaSaldo(){
+		
+	}
+	
+	private void oyenteConsultaMovimiento(){
+		
+	}
+	
+	private void oyenteConsultaPeriodos(){
+		
+	}
+}//principal

@@ -63,6 +63,7 @@ public class Consulta extends JFrame {
 				password=pField.getText();
 				if(password.equals("admin")){
 					consul=new ConsultaSQL();
+					consul.setVisible(false);
 					consul.setVisible(true);
 					dispose();
 				}

@@ -32,6 +32,7 @@ public class ConsultaSQL extends javax.swing.JFrame
    private JTextArea txtConsulta;
    private JButton botonBorrar;
    private JButton btnEjecutar;
+   private JButton btnListar;
    private DBTable tabla;    
    private JScrollPane scrConsulta;
 
@@ -87,29 +88,31 @@ public class ConsultaSQL extends javax.swing.JFrame
                }
             }
             {
+         	   btnEjecutar = new JButton();
+         	   btnEjecutar.setBounds(657, 65, 89, 23);
+         	   pnlConsulta.add(btnEjecutar);
+         	   btnEjecutar.setText("Ejecutar");
+         	   btnEjecutar.addActionListener(new ActionListener() {
+         	      public void actionPerformed(ActionEvent evt) {
+         	         btnEjecutarActionPerformed(evt);
+         	      }
+         	   });
+         	 }
+             {  
+         	   btnListar = new JButton("Listar");
+         	   btnListar.addActionListener(new ActionListener() {
+         	   	public void actionPerformed(ActionEvent evt) {
+         	   		//btnListarActionPerformed(evt);
+         	   	}
+         	   });
+         	   btnListar.setBounds(657, 99, 89, 23);
+         	   pnlConsulta.add(btnListar);
+         	}
+            {
             	botonBorrar = new JButton();
             	botonBorrar.setBounds(657, 31, 89, 23);
             	pnlConsulta.add(botonBorrar);
             	botonBorrar.setText("Borrar");            
-            	{
-            	   btnEjecutar = new JButton();
-            	   btnEjecutar.setBounds(657, 65, 89, 23);
-            	   pnlConsulta.add(btnEjecutar);
-            	   btnEjecutar.setText("Ejecutar");
-            	   
-            	   JButton bLista = new JButton("Lista");
-            	   bLista.addActionListener(new ActionListener() {
-            	   	public void actionPerformed(ActionEvent e) {
-            	   	}
-            	   });
-            	   bLista.setBounds(657, 99, 89, 23);
-            	   pnlConsulta.add(bLista);
-            	   btnEjecutar.addActionListener(new ActionListener() {
-            	      public void actionPerformed(ActionEvent evt) {
-            	         btnEjecutarActionPerformed(evt);
-            	      }
-            	   });
-            	}
             	botonBorrar.addActionListener(new ActionListener() {
             		public void actionPerformed(ActionEvent arg0) {
             		  txtConsulta.setText("");            			
@@ -158,13 +161,13 @@ public class ConsultaSQL extends javax.swing.JFrame
             String driver ="com.mysql.cj.jdbc.Driver";
         	String servidor = "localhost:3306";
             String baseDatos = "banco";
-            String usuario = "admin_batallas";
-            String clave = "pwadmin";
+            String usuario = "admin";
+            String clave = "admin";
             String uriConexion = "jdbc:mysql://" + servidor + "/" + baseDatos+"?serverTimezone=UTC";
    
             //establece una conexión con la  B.D. "batallas"  usando directamante una tabla DBTable    
             tabla.connectDatabase(driver, uriConexion, usuario, clave);
-           
+            System.out.println("se conecta con banco... ");
          }
          catch (SQLException ex)
          {
@@ -178,9 +181,9 @@ public class ConsultaSQL extends javax.swing.JFrame
          }
          catch (ClassNotFoundException e)
          {
+        	System.out.println("no se conecta con banco... ");
             e.printStackTrace();
          }
-      
    }
 
    private void desconectarBD()

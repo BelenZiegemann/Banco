@@ -1,18 +1,21 @@
 package Banco;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
-
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Types;
 //import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -35,6 +38,7 @@ public class ConsultaSQL extends javax.swing.JFrame
    private JButton btnListar;
    private DBTable tabla;    
    private JScrollPane scrConsulta;
+   private JList lsTablas;
 
    
    
@@ -62,6 +66,7 @@ public class ConsultaSQL extends javax.swing.JFrame
                thisComponentShown(evt);
             }
          });
+         
          getContentPane().setLayout(null);
          {
             pnlConsulta = new JPanel();
@@ -78,13 +83,17 @@ public class ConsultaSQL extends javax.swing.JFrame
                   txtConsulta.setTabSize(3);
                   txtConsulta.setColumns(80);
                   txtConsulta.setBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED));
-                  txtConsulta.setText("SELECT  \n" +
-                                      "FROM   \n" +
-                                      "WHERE  \n" +
-                                      "AND  \n" +
-                                      "ORDER BY ");
+                  txtConsulta.setText("Ingrese aqui una solicitud para la base.");
+                  txtConsulta.setSelectedTextColor(Color.GRAY);
                   txtConsulta.setFont(new java.awt.Font("Monospaced",0,12));
                   txtConsulta.setRows(10);
+                  
+                  txtConsulta.addMouseListener(new MouseAdapter(){
+                      public void mouseClicked(MouseEvent e){
+                    	  txtConsulta.setSelectedTextColor(Color.BLACK);
+                          txtConsulta.setText("");
+                         }
+                     });
                }
             }
             {
@@ -95,6 +104,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          	   btnEjecutar.addActionListener(new ActionListener() {
          	      public void actionPerformed(ActionEvent evt) {
          	         btnEjecutarActionPerformed(evt);
+         	        txtConsulta.setText("Ingrese una solicitud para la base.");
          	      }
          	   });
          	 }
@@ -102,7 +112,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          	   btnListar = new JButton("Listar");
          	   btnListar.addActionListener(new ActionListener() {
          	   	public void actionPerformed(ActionEvent evt) {
-         	   		//btnListarActionPerformed(evt);
+         	   		btnListarActionPerformed(evt);
          	   	}
          	   });
          	   btnListar.setBounds(657, 99, 89, 23);
@@ -126,17 +136,18 @@ public class ConsultaSQL extends javax.swing.JFrame
         	tabla.setBounds(0, 186, 784, 375);
         	
         	// Agrega la tabla al frame (no necesita JScrollPane como Jtable)
-            getContentPane().add(tabla);           
+        	getContentPane().add(tabla);           
                       
-           // setea la tabla para sólo lectura (no se puede editar su contenido)  
-           tabla.setEditable(false);       
-           
-           
-           
+            // setea la tabla para sólo lectura (no se puede editar su contenido)  
+            tabla.setEditable(false);
          }
-      } catch (Exception e) {
-         e.printStackTrace();
-      }
+         {
+        	 
+         }
+         
+	      } catch (Exception e) {
+	         e.printStackTrace();
+	      }
    }
 
    private void thisComponentShown(ComponentEvent evt) 
@@ -154,6 +165,12 @@ public class ConsultaSQL extends javax.swing.JFrame
       this.refrescarTabla();      
    }
    
+   private void btnListarActionPerformed(ActionEvent evt) 
+   {
+	  
+      this.refrescarTablaPorLista();      
+   }
+   
    private void conectarBD()
    {
          try
@@ -167,7 +184,6 @@ public class ConsultaSQL extends javax.swing.JFrame
    
             //establece una conexión con la  B.D. "batallas"  usando directamante una tabla DBTable    
             tabla.connectDatabase(driver, uriConexion, usuario, clave);
-            System.out.println("se conecta con banco... ");
          }
          catch (SQLException ex)
          {
@@ -181,7 +197,6 @@ public class ConsultaSQL extends javax.swing.JFrame
          }
          catch (ClassNotFoundException e)
          {
-        	System.out.println("no se conecta con banco... ");
             e.printStackTrace();
          }
    }
@@ -201,6 +216,52 @@ public class ConsultaSQL extends javax.swing.JFrame
    }
 
    private void refrescarTabla()
+   {
+      try
+      {    
+    	  // seteamos la consulta a partir de la cual se obtendrán los datos para llenar la tabla
+    	  tabla.setSelectSql(this.txtConsulta.getText().trim());
+
+    	  // obtenemos el modelo de la tabla a partir de la consulta para 
+    	  // modificar la forma en que se muestran de algunas columnas  
+    	  tabla.createColumnModelFromQuery();    	    
+    	  for (int i = 0; i < tabla.getColumnCount(); i++)
+    	  { // para que muestre correctamente los valores de tipo TIME (hora)  		   		  
+    		 if	 (tabla.getColumn(i).getType()==Types.TIME)  
+    		 {    		 
+    		  tabla.getColumn(i).setType(Types.CHAR);  
+  	       	 }
+    		 // cambiar el formato en que se muestran los valores de tipo DATE
+    		 if	 (tabla.getColumn(i).getType()==Types.DATE)
+    		 {
+    		    tabla.getColumn(i).setDateFormat("dd/MM/YYYY");
+    		 }
+          }  
+    	  // actualizamos el contenido de la tabla.   	     	  
+    	  tabla.refresh();
+    	  // No es necesario establecer  una conexión, crear una sentencia y recuperar el 
+    	  // resultado en un resultSet, esto lo hace automáticamente la tabla (DBTable) a 
+    	  // patir de la conexión y la consulta seteadas con connectDatabase() y setSelectSql() respectivamente.
+          
+    	  
+    	  
+       }
+      catch (SQLException ex)
+      {
+         // en caso de error, se muestra la causa en la consola
+         System.out.println("SQLException: " + ex.getMessage());
+         System.out.println("SQLState: " + ex.getSQLState());
+         System.out.println("VendorError: " + ex.getErrorCode());
+         JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
+                                       ex.getMessage() + "\n", 
+                                       "Error al ejecutar la consulta.",
+                                       JOptionPane.ERROR_MESSAGE);
+         
+      }
+      
+   }
+   
+   private void refrescarTablaPorLista()
    {
       try
       {    

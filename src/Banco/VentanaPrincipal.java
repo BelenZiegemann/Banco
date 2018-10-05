@@ -14,7 +14,7 @@ public class VentanaPrincipal extends JFrame {
 
 	private JPanel contentPane;
 	private Consulta consultaPass;
-	private Cajero cajero;
+	private LoginCajero cajero;
 	private Prestamos prestamo;
 	
 	/**
@@ -71,7 +71,7 @@ public class VentanaPrincipal extends JFrame {
 		JButton btnCajero = new JButton("Cajero");
 		btnCajero.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cajero=new Cajero();
+				cajero=new LoginCajero();
 				cajero.setVisible(true);
 			}
 		});

@@ -157,7 +157,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          {
             String driver ="com.mysql.cj.jdbc.Driver";
         	String servidor = "localhost:3306";
-            String baseDatos = "batallas";
+            String baseDatos = "banco";
             String usuario = "admin_batallas";
             String clave = "pwadmin";
             String uriConexion = "jdbc:mysql://" + servidor + "/" + baseDatos+"?serverTimezone=UTC";

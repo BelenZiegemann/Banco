@@ -14,8 +14,9 @@ public class VentanaPrincipal extends JFrame {
 
 	private JPanel contentPane;
 	private Consulta consultaPass;
-	private LoginCajero cajero;
-	private Prestamos prestamo;
+	private Cajero cajero;
+	private Prestamos prestamos;
+
 	
 	/**
 	 * Launch the application.
@@ -71,8 +72,9 @@ public class VentanaPrincipal extends JFrame {
 		JButton btnCajero = new JButton("Cajero");
 		btnCajero.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				cajero=new LoginCajero();
+				cajero=new Cajero();
 				cajero.setVisible(true);
+				
 			}
 		});
 		btnCajero.setBounds(155, 74, 89, 23);
@@ -81,14 +83,12 @@ public class VentanaPrincipal extends JFrame {
 		JButton btnAdministracion = new JButton("Prestamos ");
 		btnAdministracion.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				prestamo=new Prestamos();
-				prestamo.setVisible(true);
+				prestamos=new Prestamos();
+				prestamos.setVisible(true);
 			}
 		});
 		btnAdministracion.setBounds(290, 74, 110, 23);
 		contentPane.add(btnAdministracion);
-		
-		
-			
+				
 	}
-}
+}//principal

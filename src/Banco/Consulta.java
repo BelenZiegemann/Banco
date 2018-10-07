@@ -19,6 +19,7 @@ public class Consulta extends JFrame {
 	private JPasswordField pField;
 	private String password;
 	private JButton btnIngresar;
+	private static Consulta frame;
 	private ConsultaSQL consul;
 	/**
 	 * Launch the application.
@@ -27,7 +28,7 @@ public class Consulta extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Consulta frame = new Consulta();
+					frame = new Consulta();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();

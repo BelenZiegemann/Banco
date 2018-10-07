@@ -52,7 +52,6 @@ public class VentanaPrincipal extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				consultaPass=new Consulta();
 				consultaPass.setVisible(true);
-				
 			}
 		});
 		btnConsultas.setBounds(10, 74, 110, 23);

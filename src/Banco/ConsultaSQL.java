@@ -9,12 +9,17 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Types;
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -36,9 +41,11 @@ public class ConsultaSQL extends javax.swing.JFrame
    private JButton btnEjecutar;
    private DBTable tabla;    
    private JScrollPane scrConsulta;
+   private JList<String> listaAtributos;
    private JComboBox<String> combo;
    private String consulta;
    
+   protected Connection conexionBD = null;
    
    public ConsultaSQL() 
    {
@@ -53,7 +60,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          this.setBounds(0, 0, 860, 600);
          setVisible(true);
          this.setTitle("Banco-Consultas");
-         this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+         this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
          this.addComponentListener(new ComponentAdapter() {
             public void componentHidden(ComponentEvent evt) {
                thisComponentHidden(evt);
@@ -152,6 +159,10 @@ public class ConsultaSQL extends javax.swing.JFrame
             }	
          }
          {
+        	 listaAtributos = new JList();
+        	 pnlConsulta.add(listaAtributos);
+         }
+         {
         	// crea la tabla  
         	tabla = new DBTable();
         	tabla.setBounds(0, 186, 784, 375);
@@ -201,6 +212,7 @@ public class ConsultaSQL extends javax.swing.JFrame
    
             //establece una conexión con la  B.D. "batallas"  usando directamante una tabla DBTable    
             tabla.connectDatabase(driver, uriConexion, usuario, clave);
+            this.conexionBD = DriverManager.getConnection(uriConexion, usuario, clave);
          }
          catch (SQLException ex)
          {
@@ -236,36 +248,27 @@ public class ConsultaSQL extends javax.swing.JFrame
    {
       try
       {    
-    	  // seteamos la consulta a partir de la cual se obtendrán los datos para llenar la tabla
     	  tabla.setSelectSql(this.txtConsulta.getText().trim());
 
-    	  // obtenemos el modelo de la tabla a partir de la consulta para 
-    	  // modificar la forma en que se muestran de algunas columnas  
     	  tabla.createColumnModelFromQuery();    	    
     	  for (int i = 0; i < tabla.getColumnCount(); i++)
-    	  { // para que muestre correctamente los valores de tipo TIME (hora)  		   		  
+    	  {  		   		  
     		 if	 (tabla.getColumn(i).getType()==Types.TIME)  
     		 {    		 
     		  tabla.getColumn(i).setType(Types.CHAR);  
   	       	 }
-    		 // cambiar el formato en que se muestran los valores de tipo DATE
     		 if	 (tabla.getColumn(i).getType()==Types.DATE)
     		 {
     		    tabla.getColumn(i).setDateFormat("dd/MM/YYYY");
     		 }
-          }  
-    	  // actualizamos el contenido de la tabla.   	     	  
+          }  	     	  
     	  tabla.refresh();
-    	  // No es necesario establecer  una conexión, crear una sentencia y recuperar el 
-    	  // resultado en un resultSet, esto lo hace automáticamente la tabla (DBTable) a 
-    	  // patir de la conexión y la consulta seteadas con connectDatabase() y setSelectSql() respectivamente.
           
     	  
     	  
        }
       catch (SQLException ex)
       {
-         // en caso de error, se muestra la causa en la consola
          System.out.println("SQLException: " + ex.getMessage());
          System.out.println("SQLState: " + ex.getSQLState());
          System.out.println("VendorError: " + ex.getErrorCode());
@@ -282,33 +285,23 @@ public class ConsultaSQL extends javax.swing.JFrame
    {
       try
       {    
-    	  // seteamos la consulta a partir de la cual se obtendrán los datos para llenar la tabla
     	  tabla.setSelectSql(consulta.trim());
-
-    	  // obtenemos el modelo de la tabla a partir de la consulta para 
-    	  // modificar la forma en que se muestran de algunas columnas  
     	  tabla.createColumnModelFromQuery();    	    
-    	  for (int i = 0; i < tabla.getColumnCount(); i++)
-    	  { // para que muestre correctamente los valores de tipo TIME (hora)  		   		  
+    	  for (int i = 0; i < tabla.getColumnCount(); i++)  
+    	  {		   		  
     		 if	 (tabla.getColumn(i).getType()==Types.TIME)  
     		 {    		 
     		  tabla.getColumn(i).setType(Types.CHAR);  
   	       	 }
-    		 // cambiar el formato en que se muestran los valores de tipo DATE
     		 if	 (tabla.getColumn(i).getType()==Types.DATE)
     		 {
     		    tabla.getColumn(i).setDateFormat("dd/MM/YYYY");
     		 }
-          }  
-    	  // actualizamos el contenido de la tabla.   	     	  
+          }    	     	  
     	  tabla.refresh();
-    	  // No es necesario establecer  una conexión, crear una sentencia y recuperar el 
-    	  // resultado en un resultSet, esto lo hace automáticamente la tabla (DBTable) a 
-    	  // patir de la conexión y la consulta seteadas con connectDatabase() y setSelectSql() respectivamente.
        }
       catch (SQLException ex)
       {
-         // en caso de error, se muestra la causa en la consola
          System.out.println("SQLException: " + ex.getMessage());
          System.out.println("SQLState: " + ex.getSQLState());
          System.out.println("VendorError: " + ex.getErrorCode());

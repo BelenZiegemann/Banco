@@ -112,6 +112,9 @@ public class Cajero extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					nroTarjeta=tNumero.getText();
 					password=pContraseña.getText();
+					System.out.println(nroTarjeta);
+					System.out.println(password);
+					
 					pConsulta.setVisible(true);
 					pLogin.setVisible(false);
 					

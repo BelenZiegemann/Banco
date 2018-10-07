@@ -9,6 +9,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Types;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
@@ -52,9 +53,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          this.setBounds(0, 0, 860, 600);
          setVisible(true);
          this.setTitle("Banco-Consultas");
-         //this.setClosable(true);
          this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-         //this.setMaximizable(true);
          this.addComponentListener(new ComponentAdapter() {
             public void componentHidden(ComponentEvent evt) {
                thisComponentHidden(evt);
@@ -134,7 +133,6 @@ public class ConsultaSQL extends javax.swing.JFrame
          		combo.addActionListener(new ActionListener() {
         			public void actionPerformed(ActionEvent e) {
         				consulta = "DESCRIBE "+combo.getSelectedItem().toString() + ";" ;
-        				System.out.println(consulta);
         				btnListarActionPerformed(e);
         			}
         		});
@@ -163,9 +161,6 @@ public class ConsultaSQL extends javax.swing.JFrame
                       
             // setea la tabla para sólo lectura (no se puede editar su contenido)  
             tabla.setEditable(false);
-         }
-         {
-        	 
          }
          
 	      } catch (Exception e) {
@@ -310,9 +305,6 @@ public class ConsultaSQL extends javax.swing.JFrame
     	  // No es necesario establecer  una conexión, crear una sentencia y recuperar el 
     	  // resultado en un resultSet, esto lo hace automáticamente la tabla (DBTable) a 
     	  // patir de la conexión y la consulta seteadas con connectDatabase() y setSelectSql() respectivamente.
-          
-    	  
-    	  
        }
       catch (SQLException ex)
       {

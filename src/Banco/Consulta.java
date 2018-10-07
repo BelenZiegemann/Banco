@@ -42,7 +42,6 @@ public class Consulta extends JFrame {
 
 	public Consulta() {
 		setTitle("Banco-Login administrador");
-		//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -63,7 +62,6 @@ public class Consulta extends JFrame {
 				password=pField.getText();
 				if(password.equals("admin")){
 					consul=new ConsultaSQL();
-					consul.setVisible(false);
 					consul.setVisible(true);
 					dispose();
 				}
@@ -77,8 +75,5 @@ public class Consulta extends JFrame {
 		contentPane.add(btnIngresar);
 		
 		
-	}
-
-	
-	
-}//principal.
+	}	
+}

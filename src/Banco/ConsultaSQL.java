@@ -1,6 +1,5 @@
 package Banco;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -10,12 +9,11 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Types;
-//import java.sql.ResultSet;
 import java.sql.SQLException;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JList;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -35,11 +33,10 @@ public class ConsultaSQL extends javax.swing.JFrame
    private JTextArea txtConsulta;
    private JButton botonBorrar;
    private JButton btnEjecutar;
-   private JButton btnListar;
    private DBTable tabla;    
    private JScrollPane scrConsulta;
-   private JList lsTablas;
-
+   private JComboBox<String> combo;
+   private String consulta;
    
    
    public ConsultaSQL() 
@@ -52,7 +49,7 @@ public class ConsultaSQL extends javax.swing.JFrame
    {
       try {
          setPreferredSize(new Dimension(800, 600));
-         this.setBounds(0, 0, 800, 600);
+         this.setBounds(0, 0, 860, 600);
          setVisible(true);
          this.setTitle("Banco-Consultas");
          //this.setClosable(true);
@@ -70,7 +67,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          getContentPane().setLayout(null);
          {
             pnlConsulta = new JPanel();
-            pnlConsulta.setBounds(0, 0, 784, 186);
+            pnlConsulta.setBounds(0, 0, 860, 186);
             getContentPane().add(pnlConsulta);
             pnlConsulta.setLayout(null);
             {
@@ -94,7 +91,7 @@ public class ConsultaSQL extends javax.swing.JFrame
                           txtConsulta.setText("");
                          }
                      });
-               }
+               	  }
             }
             {
          	   btnEjecutar = new JButton();
@@ -104,19 +101,45 @@ public class ConsultaSQL extends javax.swing.JFrame
          	   btnEjecutar.addActionListener(new ActionListener() {
          	      public void actionPerformed(ActionEvent evt) {
          	         btnEjecutarActionPerformed(evt);
-         	        txtConsulta.setText("Ingrese una solicitud para la base.");
+         	         txtConsulta.setText("Ingrese una solicitud para la base.");
          	      }
          	   });
          	 }
              {  
-         	   btnListar = new JButton("Listar");
-         	   btnListar.addActionListener(new ActionListener() {
-         	   	public void actionPerformed(ActionEvent evt) {
-         	   		btnListarActionPerformed(evt);
-         	   	}
-         	   });
-         	   btnListar.setBounds(657, 99, 89, 23);
-         	   pnlConsulta.add(btnListar);
+         		combo = new JComboBox<String>();
+         		combo.addItem("atm");
+         		combo.addItem("caja");
+         		combo.addItem("caja_ahorro");
+         		combo.addItem("ciudad");
+         		combo.addItem("cliente");
+         		combo.addItem("cliente_ca");
+         		combo.addItem("debito");
+         		combo.addItem("deposito");
+         		combo.addItem("empleado");
+         		combo.addItem("extraccion");
+         		combo.addItem("pago");
+         		combo.addItem("plazo_cliente");
+         		combo.addItem("plazo_fijo");
+         		combo.addItem("prestamo");
+         		combo.addItem("sucursal");
+         		combo.addItem("tarjeta");
+         		combo.addItem("tasa_plazo_fijo");
+         		combo.addItem("tasa_prestamo");
+         		combo.addItem("trans_cajas_ahorro");
+         		combo.addItem("transaccion");
+         		combo.addItem("transaccion_por_caja");
+         		combo.addItem("transferencia");
+         		combo.addItem("ventanilla");
+         		
+         		combo.addActionListener(new ActionListener() {
+        			public void actionPerformed(ActionEvent e) {
+        				consulta = "DESCRIBE "+combo.getSelectedItem().toString() + ";" ;
+        				System.out.println(consulta);
+        				btnListarActionPerformed(e);
+        			}
+        		});
+         		combo.setBounds(657, 99, 150, 23);
+         		pnlConsulta.add(combo);
          	}
             {
             	botonBorrar = new JButton();
@@ -167,7 +190,6 @@ public class ConsultaSQL extends javax.swing.JFrame
    
    private void btnListarActionPerformed(ActionEvent evt) 
    {
-	  
       this.refrescarTablaPorLista();      
    }
    
@@ -266,7 +288,7 @@ public class ConsultaSQL extends javax.swing.JFrame
       try
       {    
     	  // seteamos la consulta a partir de la cual se obtendrán los datos para llenar la tabla
-    	  tabla.setSelectSql(this.txtConsulta.getText().trim());
+    	  tabla.setSelectSql(consulta.trim());
 
     	  // obtenemos el modelo de la tabla a partir de la consulta para 
     	  // modificar la forma en que se muestran de algunas columnas  

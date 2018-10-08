@@ -1,5 +1,6 @@
 package Banco;
 
+import Banco.Fechas;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
@@ -8,8 +9,6 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
-
-import com.mysql.cj.xdevapi.Statement;
 
 import quick.dbtable.DBTable;
 
@@ -20,9 +19,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Types;
 import java.awt.event.ActionEvent;
 import javax.swing.JTextField;
@@ -67,6 +68,8 @@ public class Cajero extends JFrame {
 	private JTable tablaMovimiento;
 	private JScrollPane scrTablaMovPeriodo;
 	private JTable tablaMovPeriodo;
+	private Fechas f = new Fechas();
+	private String desde, hasta;
 	 
 	public Cajero() {
 		super();
@@ -76,9 +79,10 @@ public class Cajero extends JFrame {
 	private void initGUI(){
 		try{
 			setTitle("Banco-Cajero");
-			setBounds(100, 100, 450, 300);
+			setBounds(100, 100, 850, 400);
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+			contentPane.setBounds(100,100,850,400);
 			setContentPane(contentPane);
 			contentPane.setLayout(null);
 	        this.addComponentListener(new ComponentAdapter() {
@@ -124,7 +128,6 @@ public class Cajero extends JFrame {
 					
 					pConsulta.setVisible(true);
 					pLogin.setVisible(false);
-					
 				}
 			});
 			bIngresar.setBounds(293, 23, 89, 23);
@@ -133,7 +136,8 @@ public class Cajero extends JFrame {
 			
 			/*Creacion panel pConsulta*/
 			pConsulta = new JPanel();
-			pConsulta.setBounds(0, 0, 834, 79);
+			pConsulta.setBounds(5, 5, 834, 169);
+			pConsulta.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.add(pConsulta);
 			pConsulta.setLayout(null);
 			pConsulta.setVisible(false);
@@ -168,6 +172,8 @@ public class Cajero extends JFrame {
 					pMovPeriodo.setVisible(true);
 					pMovimiento.setVisible(false);
 					pSaldo.setVisible(false);
+					desde = tInicial.getText();
+					hasta = tFinal.getText();
 					oyentePeriodos();
 				}
 			});
@@ -227,12 +233,11 @@ public class Cajero extends JFrame {
 	                  new DefaultTableModel  // extendiendo el modelo DefalutTableModel
 	                  (
 	                     new String[][] {},
-	                     new String[] {"Saldo", "Caja Ahorro"}
+	                     new String[] {"Saldo"}
 	                  )
 	                  {                      // con una clase anónima 
 	            	     // define la clase java asociada a cada columna de la tabla
-	            	     Class[] types = new Class[] {java.lang.Integer.class, 
-	            	    		 java.lang.Integer.class };
+	            	     Class[] types = new Class[] {java.lang.Integer.class };
 	            	    // define si una columna es editable
 	                     boolean[] canEdit = new boolean[] { false, false };
 	                      
@@ -404,15 +409,127 @@ public class Cajero extends JFrame {
 	
 	
 	private void oyenteSaldo(){
-		
+		try
+	      {
+	         // se crea una sentencia o comando jdbc para realizar la consulta 
+	    	 // a partir de la coneccion establecida (conexionBD)
+	         Statement stmt = this.conexionBD.createStatement();
+
+	         // se prepara el string SQL de la consulta
+	         String sql = "SELECT saldo FROM tarjeta NATURAL JOIN trans_cajas_ahorro WHERE '"+ nroTarjeta +"'= nro_tarjeta AND PIN=md5('"+password+"');";
+
+	         // se ejecuta la sentencia y se recibe un resultset
+	         ResultSet rs = stmt.executeQuery(sql);
+	         // se recorre el resulset y se actualiza la tabla en pantalla
+	         ((DefaultTableModel) this.tablaSaldo.getModel()).setRowCount(0);
+	         int i = 0;
+	         while (rs.next())
+	         {
+	        	 // agrega una fila al modelo de la tabla
+	            ((DefaultTableModel) this.tablaSaldo.getModel()).setRowCount(i + 1);
+	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
+	            this.tablaSaldo.setValueAt(rs.getString("saldo"), i, 0);       
+	            i++;
+	         }
+	         // se cierran los recursos utilizados 
+	         rs.close();
+	         stmt.close();
+	      }
+	      catch (SQLException ex)
+	      {
+	         // en caso de error, se muestra la causa en la consola
+	         System.out.println("SQLException: " + ex.getMessage());
+	         System.out.println("SQLState: " + ex.getSQLState());
+	         System.out.println("VendorError: " + ex.getErrorCode());
+	      }
 	}
 	
 	private void oyenteMovimientos(){
-		
+		try
+	      {
+	         // se crea una sentencia o comando jdbc para realizar la consulta 
+	    	 // a partir de la coneccion establecida (conexionBD)
+	         Statement stmt = this.conexionBD.createStatement();
+
+	         // se prepara el string SQL de la consulta
+	         String sql = "SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM trans_cajas_ahorro NATURAL JOIN tarjeta WHERE '"+ nroTarjeta +"'= nro_tarjeta AND PIN=md5('"+password+"') ORDER BY fecha,hora DESC LIMIT 15;" ;
+
+	         // se ejecuta la sentencia y se recibe un resultset
+	         ResultSet rs = stmt.executeQuery(sql);
+	         // se recorre el resulset y se actualiza la tabla en pantalla
+	         ((DefaultTableModel) this.tablaMovimiento.getModel()).setRowCount(0);
+	         int i = 0;
+	         while (rs.next())
+	         {
+	        	 // agrega una fila al modelo de la tabla
+	            ((DefaultTableModel) this.tablaMovimiento.getModel()).setRowCount(i + 1);
+	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
+	            this.tablaMovimiento.setValueAt(f.convertirDateAString(rs.getDate("fecha")), i, 0);
+	            this.tablaMovimiento.setValueAt((rs.getTime("hora")).toString(), i, 1);
+	            this.tablaMovimiento.setValueAt(rs.getString("tipo"), i, 2);
+	            this.tablaMovimiento.setValueAt(rs.getInt("monto"), i, 3);
+	            this.tablaMovimiento.setValueAt(rs.getInt("cod_caja"), i, 4);
+	            this.tablaMovimiento.setValueAt(rs.getInt("destino"), i, 5);
+	            i++;
+	         }
+	         // se cierran los recursos utilizados 
+	         rs.close();
+	         stmt.close();
+	      }
+	      catch (SQLException ex)
+	      {
+	         // en caso de error, se muestra la causa en la consola
+	         System.out.println("SQLException: " + ex.getMessage());
+	         System.out.println("SQLState: " + ex.getSQLState());
+	         System.out.println("VendorError: " + ex.getErrorCode());
+	      }
 	}
 	
 	private void oyentePeriodos(){
-		
+		try
+	      {
+	         // se crea una sentencia o comando jdbc para realizar la consulta 
+	    	 // a partir de la coneccion establecida (conexionBD)
+	         Statement stmt = this.conexionBD.createStatement();
+
+	         // se prepara el string SQL de la consulta
+	         hasta = "10/10/2015";
+	         desde = "01/10/2015";
+	         String sql = "\n" + 
+	         		"SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM tarjeta NATURAL JOIN trans_cajas_ahorro " + 
+	         		"WHERE nro_tarjeta='"+nroTarjeta+"' AND PIN=md5('"+password+"') AND fecha BETWEEN '"+Fechas.convertirStringADateSQL(desde)+"' AND '"+Fechas.convertirStringADateSQL(hasta)+"' "+ 
+	         		"ORDER BY fecha, hora;";
+	         System.out.println(desde);
+	         System.out.println(Fechas.convertirStringADateSQL(desde).toString());
+	         // se ejecuta la sentencia y se recibe un resultset
+	         ResultSet rs = stmt.executeQuery(sql);
+	         // se recorre el resulset y se actualiza la tabla en pantalla
+	         ((DefaultTableModel) this.tablaMovPeriodo.getModel()).setRowCount(0);
+	         int i = 0;
+	         while (rs.next())
+	         {
+	        	 // agrega una fila al modelo de la tabla
+	            ((DefaultTableModel) this.tablaMovPeriodo.getModel()).setRowCount(i + 1);
+	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
+	            this.tablaMovPeriodo.setValueAt(rs.getDate("fecha").toString(), i, 0);
+	            this.tablaMovPeriodo.setValueAt((rs.getTime("hora")).toString(), i, 1);
+	            this.tablaMovPeriodo.setValueAt(rs.getString("tipo"), i, 2);
+	            this.tablaMovPeriodo.setValueAt(rs.getInt("monto"), i, 3);
+	            this.tablaMovPeriodo.setValueAt(rs.getInt("cod_caja"), i, 4);
+	            this.tablaMovPeriodo.setValueAt(rs.getInt("destino"), i, 5);
+	            i++;
+	         }
+	         // se cierran los recursos utilizados 
+	         rs.close();
+	         stmt.close();
+	      }
+	      catch (SQLException ex)
+	      {
+	         // en caso de error, se muestra la causa en la consola
+	         System.out.println("SQLException: " + ex.getMessage());
+	         System.out.println("SQLState: " + ex.getSQLState());
+	         System.out.println("VendorError: " + ex.getErrorCode());
+	      }
 	}
 	
 	

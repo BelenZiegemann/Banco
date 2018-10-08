@@ -9,6 +9,7 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.Types;
+import java.util.ArrayList;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -43,7 +44,8 @@ public class ConsultaSQL extends javax.swing.JFrame
    private JScrollPane scrConsulta;
    private JList<String> listaAtributos;
    private JComboBox<String> combo;
-   private String consulta;
+   private String consulta,tabla_elegida;
+   private String [] listAtributos;
    
    protected Connection conexionBD = null;
    
@@ -56,8 +58,8 @@ public class ConsultaSQL extends javax.swing.JFrame
    private void initGUI() 
    {
       try {
-         setPreferredSize(new Dimension(800, 600));
-         this.setBounds(0, 0, 860, 600);
+         setPreferredSize(new Dimension(1600, 600));
+         this.setBounds(0, 0, 1000, 800);
          setVisible(true);
          this.setTitle("Banco-Consultas");
          this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
@@ -73,7 +75,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          getContentPane().setLayout(null);
          {
             pnlConsulta = new JPanel();
-            pnlConsulta.setBounds(0, 0, 860, 186);
+            pnlConsulta.setBounds(0, 0, 950, 280);
             getContentPane().add(pnlConsulta);
             pnlConsulta.setLayout(null);
             {
@@ -139,7 +141,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          		
          		combo.addActionListener(new ActionListener() {
         			public void actionPerformed(ActionEvent e) {
-        				consulta = "DESCRIBE "+combo.getSelectedItem().toString() + ";" ;
+        				tabla_elegida = combo.getSelectedItem().toString();
         				btnListarActionPerformed(e);
         			}
         		});
@@ -160,12 +162,14 @@ public class ConsultaSQL extends javax.swing.JFrame
          }
          {
         	 listaAtributos = new JList();
+        	 listaAtributos.setVisible(true);
+        	 listaAtributos.setBounds(814, 10, 784, 1650);
         	 pnlConsulta.add(listaAtributos);
          }
          {
         	// crea la tabla  
         	tabla = new DBTable();
-        	tabla.setBounds(0, 186, 784, 375);
+        	tabla.setBounds(0, 286, 684, 375);
         	
         	// Agrega la tabla al frame (no necesita JScrollPane como Jtable)
         	getContentPane().add(tabla);           
@@ -282,36 +286,32 @@ public class ConsultaSQL extends javax.swing.JFrame
    }
    
    private void refrescarTablaPorLista()
-   {
-      try
-      {    
-    	  tabla.setSelectSql(consulta.trim());
-    	  tabla.createColumnModelFromQuery();    	    
-    	  for (int i = 0; i < tabla.getColumnCount(); i++)  
-    	  {		   		  
-    		 if	 (tabla.getColumn(i).getType()==Types.TIME)  
-    		 {    		 
-    		  tabla.getColumn(i).setType(Types.CHAR);  
-  	       	 }
-    		 if	 (tabla.getColumn(i).getType()==Types.DATE)
-    		 {
-    		    tabla.getColumn(i).setDateFormat("dd/MM/YYYY");
-    		 }
-          }    	     	  
-    	  tabla.refresh();
-       }
-      catch (SQLException ex)
-      {
-         System.out.println("SQLException: " + ex.getMessage());
-         System.out.println("SQLState: " + ex.getSQLState());
-         System.out.println("VendorError: " + ex.getErrorCode());
-         JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this),
-                                       ex.getMessage() + "\n", 
-                                       "Error al ejecutar la consulta.",
-                                       JOptionPane.ERROR_MESSAGE);
-         
-      }
-      
+   {  
+	consulta="DESCRIBE "+tabla_elegida;
+	try {
+		conectarBD();
+		Statement stmt = conexionBD.createStatement();
+		ResultSet rs= stmt.executeQuery(consulta);
+		int i=0;
+		listAtributos= new String[15];
+		
+		while(rs.next()){
+			listAtributos[i]=rs.getString(1);
+			i++;
+		}
+
+		listaAtributos.setListData(listAtributos);
+		rs.close();
+		desconectarBD();
+
+	}
+	catch (SQLException ex){
+		// en caso de error, se muestra la causa en la consola
+		System.out.println("SQLException: " + ex.getMessage());
+		System.out.println("SQLState: " + ex.getSQLState());
+		System.out.println("VendorError: " + ex.getErrorCode());
+		JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), ex.getMessage() + "\n","Error al ejecutar la consulta.",JOptionPane.ERROR_MESSAGE);
+	}
    }
 }
 

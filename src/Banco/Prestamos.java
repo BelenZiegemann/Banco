@@ -10,6 +10,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -19,6 +20,8 @@ import javax.swing.JPasswordField;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 @SuppressWarnings("serial")
 public class Prestamos extends JFrame {
@@ -155,23 +158,61 @@ public class Prestamos extends JFrame {
 			pConsulta.add(bCliente);
 			/*Fin panel pConsulta*/
 			
-			/*Comienzo panel pSaldo*/
+			/*Comienzo panel pCreacion de prestamos*/
 			pCreacion = new JPanel();
 			pCreacion.setBounds(0, 83, 434, 178);
 			contentPane.add(pCreacion);
 			pCreacion.setVisible(false);
 			
-			/*fin panel pSaldo*/
+			/*Fin creacion panel pCreacion de prestamos*/
 			
 			pPago = new JPanel();
 			pPago.setBounds(0, 83, 434, 178);
 			contentPane.add(pPago);
 			pPago.setVisible(false);
 			
+			
+			/*Creacion panel pCliente morosos*/
 			pCliente = new JPanel();
 			pCliente.setBounds(0, 83, 434, 178);
 			contentPane.add(pCliente);
 			pCliente.setVisible(false);
+			
+			{  //modelo de la tabla donde se almacenaran las tuplas 
+	               TableModel MorososModel =  // se crea un modelo de tabla BarcosModel 
+	                  new DefaultTableModel  // extendiendo el modelo DefalutTableModel
+	                  (
+	                     new String[][] {},
+	                     new String[] {"legajo", "Apellido", "Nombre", "Tipo doc", "Numero doc",
+	                    		 		"direccion", "telefono", "cargo", "numero suc"}
+	                  )
+	                  {                      // con una clase anónima 
+	            	     // define la clase java asociada a cada columna de la tabla
+	            	     Class[] types = new Class[] {java.lang.Integer.class, java.lang.String.class, java.lang.String.class, 
+	            	    		 java.lang.String.class,java.lang.String.class,java.lang.String.class,java.lang.Long.class,
+	            	    		 java.lang.String.class, java.lang.Integer.class,  };
+	            	    // define si una columna es editable
+	                     boolean[] canEdit = new boolean[] { false, false, false,
+								                    		 false, false, false,
+								                    		 false, false, false};
+	                      
+	                    // recupera la clase java de cada columna de la tabla
+	                     public Class getColumnClass(int columnIndex) 
+	                     {
+	                        return types[columnIndex];
+	                     }
+	                   // determina si una celda es editable
+	                     public boolean isCellEditable(int rowIndex, int columnIndex) 
+	                     {
+	                        return canEdit[columnIndex];
+	                     }
+	                  };
+	               tablaMorosos = new JTable(); // Crea una tabla            
+	               tablaMorosos.setModel(MorososModel); // setea el modelo de la tabla  
+	               tablaMorosos.setAutoCreateRowSorter(true); // activa el ordenamiento por columnas, para
+	                                                   // que se ordene al hacer click en una columna
+	            }
+			/*Fin creacion panel pCliente morosos*/
 			
 		}//try
 		catch(Exception e){
@@ -282,7 +323,48 @@ public class Prestamos extends JFrame {
 	}
 	
 	private void oyenteClientesMorosos(){
-		
+		 try
+	      {
+	         // se crea una sentencia o comando jdbc para realizar la consulta 
+	    	 // a partir de la coneccion establecida (conexionBD)
+	         Statement stmt = this.conexionBD.createStatement();
+
+	         // se prepara el string SQL de la consulta
+	         String sql = "SELECT legajo, apellido,nombre, tipo_doc, nro_doc, direccion, telefono, cargo, nro_suc" + 
+	                      "FROM empleado";
+
+	         // se ejecuta la sentencia y se recibe un resultset
+	         ResultSet rs = stmt.executeQuery(sql);
+	         // se recorre el resulset y se actualiza la tabla en pantalla
+	         ((DefaultTableModel) this.tablaMorosos.getModel()).setRowCount(0);
+	         int i = 0;
+	         while (rs.next())
+	         {
+	        	 // agrega una fila al modelo de la tabla
+	            ((DefaultTableModel) this.tablaMorosos.getModel()).setRowCount(i + 1);
+	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
+	            this.tablaMorosos.setValueAt(rs.getInt("legajo"), i, 0);
+	            this.tablaMorosos.setValueAt(rs.getString("apellido"), i, 1);            
+	            this.tablaMorosos.setValueAt(rs.getString("nombre"), i, 2);
+	            this.tablaMorosos.setValueAt(rs.getString("tipo_doc"), i, 3);
+	            this.tablaMorosos.setValueAt(rs.getString("nro_doc"), i, 4);            
+	            this.tablaMorosos.setValueAt(rs.getString("direccion"), i, 5);
+	            this.tablaMorosos.setValueAt(rs.getLong("telefono"), i, 6);
+	            this.tablaMorosos.setValueAt(rs.getString("cargo"), i, 7);            
+	            this.tablaMorosos.setValueAt(rs.getInt("nro_suc"), i, 8);
+	            i++;
+	         }
+	         // se cierran los recursos utilizados 
+	         rs.close();
+	         stmt.close();
+	      }
+	      catch (SQLException ex)
+	      {
+	         // en caso de error, se muestra la causa en la consola
+	         System.out.println("SQLException: " + ex.getMessage());
+	         System.out.println("SQLState: " + ex.getSQLState());
+	         System.out.println("VendorError: " + ex.getErrorCode());
+	      }
 	}
 
 }//principal

@@ -80,6 +80,7 @@ public class Cajero extends JFrame {
 		try{
 			setTitle("Banco-Cajero");
 			setBounds(100, 100, 850, 400);
+			setSize(600,600);
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.setBounds(100,100,850,400);
@@ -136,7 +137,7 @@ public class Cajero extends JFrame {
 			
 			/*Creacion panel pConsulta*/
 			pConsulta = new JPanel();
-			pConsulta.setBounds(5, 5, 834, 169);
+			pConsulta.setBounds(0, 0, 574, 79);
 			pConsulta.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.add(pConsulta);
 			pConsulta.setLayout(null);
@@ -170,6 +171,7 @@ public class Cajero extends JFrame {
 			bPeriodo.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					pMovPeriodo.setVisible(true);
+					pPeriodos.setVisible(true);
 					pMovimiento.setVisible(false);
 					pSaldo.setVisible(false);
 					desde = tInicial.getText();
@@ -181,24 +183,25 @@ public class Cajero extends JFrame {
 			pConsulta.add(bPeriodo);
 			
 			pPeriodos = new JPanel();
+			pPeriodos.setBounds(440, 0, 134, 79);
+			pPeriodos.setVisible(false);
 			pPeriodos.setLayout(null);
-			pPeriodos.setBounds(450, 11, 100, 20);
 			
 			lInicial = new JLabel("Fecha Inicial");
-			lInicial.setBounds(500, 11, 71, 14);
+			lInicial.setBounds(10, 0, 86, 14);
 			pPeriodos.add(lInicial);
 			
 			lFinal = new JLabel("Fecha Final");
-			lFinal.setBounds(500, 54, 71, 14);
+			lFinal.setBounds(10, 39, 86, 14);
 			pPeriodos.add(lFinal);
 			
 			tInicial = new JTextField();
-			tInicial.setBounds(600, 11, 86, 20);
+			tInicial.setBounds(10, 14, 86, 20);
 			pPeriodos.add(tInicial);
 			tInicial.setColumns(10);
 			
 			tFinal = new JTextField();
-			tFinal.setBounds(600, 54, 86, 20);
+			tFinal.setBounds(10, 54, 86, 20);
 			pPeriodos.add(tFinal);
 			tFinal.setColumns(10);
 			
@@ -209,17 +212,17 @@ public class Cajero extends JFrame {
 			
 			//---------------Declaracion de paneles--------------------
 			pSaldo = new JPanel();
-			pSaldo.setBounds(0, 83, 434, 178);
+			pSaldo.setBounds(10, 83, 564, 467);
 			contentPane.add(pSaldo);
 			pSaldo.setVisible(false);
 			
 			pMovimiento = new JPanel();
-			pMovimiento.setBounds(0, 83, 434, 178);
+			pMovimiento.setBounds(0, 83, 574, 467);
 			contentPane.add(pMovimiento);
 			pMovimiento.setVisible(false);
 			
 			pMovPeriodo = new JPanel();
-			pMovPeriodo.setBounds(0, 83, 434, 178);
+			pMovPeriodo.setBounds(0, 83, 574, 467);
 			contentPane.add(pMovPeriodo);
 			pMovPeriodo.setVisible(false);
 			

@@ -61,6 +61,7 @@ public class Cajero extends JFrame {
 	protected Connection conexionBD = null;
 	private String nroTarjeta;
 	private String password;
+	private Integer[] nros;
 	
 	private JScrollPane scrTablaSaldo;
 	private JTable tablaSaldo;
@@ -69,7 +70,7 @@ public class Cajero extends JFrame {
 	private JScrollPane scrTablaMovPeriodo;
 	private JTable tablaMovPeriodo;
 	private Fechas f = new Fechas();
-	private String desde, hasta;
+	private String desde, hasta, consulta;
 	 
 	public Cajero() {
 		super();
@@ -124,12 +125,15 @@ public class Cajero extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					nroTarjeta=tNumero.getText();
 					password=pContraseña.getText();
-					System.out.println(nroTarjeta);
-					System.out.println(password);
 					
-					pConsulta.setVisible(true);
-					pLogin.setVisible(false);
-				}
+					if(verificacion()) {
+							pConsulta.setVisible(true);
+							pLogin.setVisible(false);
+						}
+						else{
+							JOptionPane.showMessageDialog(null, "Tarjeta o Contraseña Incorrecta");
+						}
+					}
 			});
 			bIngresar.setBounds(293, 23, 89, 23);
 			pLogin.add(bIngresar);
@@ -197,11 +201,13 @@ public class Cajero extends JFrame {
 			
 			tInicial = new JTextField();
 			tInicial.setBounds(10, 14, 86, 20);
+			tInicial.setVisible(true);
 			pPeriodos.add(tInicial);
 			tInicial.setColumns(10);
 			
 			tFinal = new JTextField();
 			tFinal.setBounds(10, 54, 86, 20);
+			tFinal.setVisible(true);
 			pPeriodos.add(tFinal);
 			tFinal.setColumns(10);
 			
@@ -227,113 +233,103 @@ public class Cajero extends JFrame {
 			pMovPeriodo.setVisible(false);
 			
 			//-----Panel Saldo------- 
-			{  //se crea un JScrollPane para poder mostrar la tabla en su interior 
+			{  
 	            scrTablaSaldo = new JScrollPane();
 	            pSaldo.add(scrTablaSaldo, BorderLayout.CENTER);
 	            
-	            {  //modelo de la tabla donde se almacenaran las tuplas 
-	               TableModel SaldoModel =  // se crea un modelo de tabla BarcosModel 
-	                  new DefaultTableModel  // extendiendo el modelo DefalutTableModel
+	            {  
+	               TableModel SaldoModel = 
+	                  new DefaultTableModel  
 	                  (
 	                     new String[][] {},
 	                     new String[] {"Saldo"}
 	                  )
-	                  {                      // con una clase anónima 
-	            	     // define la clase java asociada a cada columna de la tabla
+	                  { 
 	            	     Class[] types = new Class[] {java.lang.Integer.class };
-	            	    // define si una columna es editable
 	                     boolean[] canEdit = new boolean[] { false, false };
 	                      
-	                    // recupera la clase java de cada columna de la tabla
 	                     public Class getColumnClass(int columnIndex) 
 	                     {
 	                        return types[columnIndex];
 	                     }
-	                   // determina si una celda es editable
 	                     public boolean isCellEditable(int rowIndex, int columnIndex) 
 	                     {
 	                        return canEdit[columnIndex];
 	                     }
 	                  };
-	               tablaSaldo = new JTable(); // Crea una tabla
-	               scrTablaSaldo.setViewportView(tablaSaldo); //setea la tabla dentro del JScrollPane srcTabla               
-	               tablaSaldo.setModel(SaldoModel); // setea el modelo de la tabla  
-	               tablaSaldo.setAutoCreateRowSorter(true); // activa el ordenamiento por columnas, para
-	                                                   // que se ordene al hacer click en una columna
+	               tablaSaldo = new JTable();
+	               scrTablaSaldo.setViewportView(tablaSaldo);                
+	               tablaSaldo.setModel(SaldoModel); 
+	               tablaSaldo.setAutoCreateRowSorter(true); 
 	            }
 	         }
 			//-----Panel Movimiento------- 
-			{  //se crea un JScrollPane para poder mostrar la tabla en su interior 
+			{  
 	            scrTablaMovimiento = new JScrollPane();
 	            pMovimiento.add(scrTablaMovimiento, BorderLayout.CENTER);
 	            
-	            {  //modelo de la tabla donde se almacenaran las tuplas 
-	               TableModel MovimientoModel =  // se crea un modelo de tabla BarcosModel 
-	                  new DefaultTableModel  // extendiendo el modelo DefalutTableModel
+	            { 
+	               TableModel MovimientoModel = 
+	                  new DefaultTableModel 
 	                  (
 	                     new String[][] {},
 	                     new String[] {"Fecha","Hora","Tipo","Monto","Codigo Caja","Caja Ahorro"}
 	                  )
-	                  {                      // con una clase anónima 
-	            	     // define la clase java asociada a cada columna de la tabla
+	                  {            
 	            	     Class[] types = new Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class };
-	            	    // define si una columna es editable
+	            	
 	                     boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
 	                      
-	                    // recupera la clase java de cada columna de la tabla
+	         
 	                     public Class getColumnClass(int columnIndex) 
 	                     {
 	                        return types[columnIndex];
 	                     }
-	                   // determina si una celda es editable
+	           
 	                     public boolean isCellEditable(int rowIndex, int columnIndex) 
 	                     {
 	                        return canEdit[columnIndex];
 	                     }
 	                  };
-	               tablaMovimiento = new JTable(); // Crea una tabla
-	               scrTablaMovimiento.setViewportView(tablaMovimiento); //setea la tabla dentro del JScrollPane srcTabla               
-	               tablaMovimiento.setModel(MovimientoModel); // setea el modelo de la tabla  
-	               tablaMovimiento.setAutoCreateRowSorter(true); // activa el ordenamiento por columnas, para
-	                                                   // que se ordene al hacer click en una columna
+	               tablaMovimiento = new JTable(); 
+	               scrTablaMovimiento.setViewportView(tablaMovimiento);           
+	               tablaMovimiento.setModel(MovimientoModel); 
+	               tablaMovimiento.setAutoCreateRowSorter(true);
 	            }
 	         }
 			//-----Panel Movimiento Periodo------- 
-			{  //se crea un JScrollPane para poder mostrar la tabla en su interior 
+			{  
 	            scrTablaMovPeriodo = new JScrollPane();
 	            pMovPeriodo.add(scrTablaMovPeriodo, BorderLayout.CENTER);
 	            
-	            {  //modelo de la tabla donde se almacenaran las tuplas 
-	               TableModel MovPeriodoModel =  // se crea un modelo de tabla BarcosModel 
-	                  new DefaultTableModel  // extendiendo el modelo DefalutTableModel
+	            {  
+	               TableModel MovPeriodoModel =  
+	                  new DefaultTableModel  
 	                  (
 	                     new String[][] {},
 	                     new String[] {"Fecha","Hora","Tipo","Monto","Codigo Caja","Caja Ahorro"}
 	                  )
-	                  {                      // con una clase anónima 
-	            	     // define la clase java asociada a cada columna de la tabla
+	                  {                      
 	            	     Class[] types = new Class[] {java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.Integer.class, java.lang.Integer.class };
-	            	    // define si una columna es editable
+	            
 	                     boolean[] canEdit = new boolean[] { false, false, false, false, false, false };
-	                      
-	                    // recupera la clase java de cada columna de la tabla
+	           
 	                     public Class getColumnClass(int columnIndex) 
 	                     {
 	                        return types[columnIndex];
 	                     }
-	                   // determina si una celda es editable
+	                
 	                     public boolean isCellEditable(int rowIndex, int columnIndex) 
 	                     {
 	                        return canEdit[columnIndex];
 	                     }
 	                  };
-	               tablaMovPeriodo = new JTable(); // Crea una tabla
-	               scrTablaMovPeriodo.setViewportView(tablaMovPeriodo); //setea la tabla dentro del JScrollPane srcTabla               
-	               tablaMovPeriodo.setModel(MovPeriodoModel); // setea el modelo de la tabla  
-	               tablaMovPeriodo.setAutoCreateRowSorter(true); // activa el ordenamiento por columnas, para
-	                                                   // que se ordene al hacer click en una columna
+	               tablaMovPeriodo = new JTable(); 
+	               scrTablaMovPeriodo.setViewportView(tablaMovPeriodo);          
+	               tablaMovPeriodo.setModel(MovPeriodoModel);
+	               tablaMovPeriodo.setAutoCreateRowSorter(true); 
 	            }
-	         }
+			}
 		}
 		catch (Exception e) {
 	         e.printStackTrace();	
@@ -343,6 +339,41 @@ public class Cajero extends JFrame {
 	
 	
 	/*Metodos privados*/
+	private boolean verificacion() {
+		boolean valida = false;
+		consulta="SELECT nro_tarjeta FROM tarjeta WHERE PIN=md5('"+password+"');";
+		try {
+			conectarBD();
+			Statement stmt = conexionBD.createStatement();
+			ResultSet rs= stmt.executeQuery(consulta);
+			int i=0;
+			nros= new Integer[1];
+			
+			while(rs.next()){
+				nros[i]=rs.getInt(1);
+				i++;
+			}
+
+			rs.close();
+			
+			i=0;
+			while(!valida && i<nros.length) {
+				valida = nros[i].equals(Integer.parseInt(nroTarjeta));
+				i++;
+			}
+		}
+		catch (SQLException ex){
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+			JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), ex.getMessage() + "\n","Error al ejecutar la consulta.",JOptionPane.ERROR_MESSAGE);
+		}
+		catch (NullPointerException e) {
+			System.out.println("No se encontro");
+		}
+		
+		return valida;
+	 }
 	
 	private void thisComponentShown(ComponentEvent evt) 
 	{
@@ -376,7 +407,6 @@ public class Cajero extends JFrame {
 	            String uriConexion = "jdbc:mysql://" + servidor + "/" + baseDatos +"?serverTimezone=UTC";
 	           
 	            this.conexionBD = DriverManager.getConnection(uriConexion, usuario, clave);
-	            System.out.println("Se conecta");
 	         }
 	         catch (SQLException ex)
 	         {
@@ -496,14 +526,10 @@ public class Cajero extends JFrame {
 	         Statement stmt = this.conexionBD.createStatement();
 
 	         // se prepara el string SQL de la consulta
-	         hasta = "10/10/2015";
-	         desde = "01/10/2015";
 	         String sql = "\n" + 
 	         		"SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM tarjeta NATURAL JOIN trans_cajas_ahorro " + 
 	         		"WHERE nro_tarjeta='"+nroTarjeta+"' AND PIN=md5('"+password+"') AND fecha BETWEEN '"+Fechas.convertirStringADateSQL(desde)+"' AND '"+Fechas.convertirStringADateSQL(hasta)+"' "+ 
 	         		"ORDER BY fecha, hora;";
-	         System.out.println(desde);
-	         System.out.println(Fechas.convertirStringADateSQL(desde).toString());
 	         // se ejecuta la sentencia y se recibe un resultset
 	         ResultSet rs = stmt.executeQuery(sql);
 	         // se recorre el resulset y se actualiza la tabla en pantalla

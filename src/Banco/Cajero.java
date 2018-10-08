@@ -368,7 +368,7 @@ public class Cajero extends JFrame {
 			System.out.println("VendorError: " + ex.getErrorCode());
 			JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), ex.getMessage() + "\n","Error al ejecutar la consulta.",JOptionPane.ERROR_MESSAGE);
 		}
-		catch (NullPointerException e) {
+		catch (Exception e) {
 			System.out.println("No se encontro");
 		}
 		

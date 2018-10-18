@@ -1,6 +1,6 @@
 package Banco;
 
-import Banco.Fechas;
+import Banco.Fechas.*;
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
@@ -179,7 +179,9 @@ public class Cajero extends JFrame {
 					pMovimiento.setVisible(false);
 					pSaldo.setVisible(false);
 					desde = tInicial.getText();
+					desde = f.adelantarDia(desde);
 					hasta = tFinal.getText();
+					hasta = f.adelantarDia(hasta);
 					oyentePeriodos();
 				}
 			});
@@ -188,7 +190,7 @@ public class Cajero extends JFrame {
 			
 			pPeriodos = new JPanel();
 			pPeriodos.setBounds(440, 0, 134, 79);
-			pPeriodos.setVisible(false);
+			pPeriodos.setVisible(true);
 			pPeriodos.setLayout(null);
 			
 			lInicial = new JLabel("Fecha Inicial");
@@ -449,7 +451,7 @@ public class Cajero extends JFrame {
 	         Statement stmt = this.conexionBD.createStatement();
 
 	         // se prepara el string SQL de la consulta
-	         String sql = "SELECT saldo FROM tarjeta NATURAL JOIN trans_cajas_ahorro WHERE '"+ nroTarjeta +"'= nro_tarjeta AND PIN=md5('"+password+"');";
+	         String sql = "SELECT DISTINCT saldo FROM tarjeta NATURAL JOIN trans_cajas_ahorro WHERE '"+ nroTarjeta +"'= nro_tarjeta AND PIN=md5('"+password+"');";
 
 	         // se ejecuta la sentencia y se recibe un resultset
 	         ResultSet rs = stmt.executeQuery(sql);

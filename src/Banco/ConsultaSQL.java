@@ -29,6 +29,7 @@ import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import javax.swing.border.BevelBorder;
+import javax.swing.table.DefaultTableModel;
 
 import quick.dbtable.*; 
 
@@ -49,6 +50,7 @@ public class ConsultaSQL extends javax.swing.JFrame
    
    protected Connection conexionBD = null;
    
+   //Constructo de ConsultaSQL
    public ConsultaSQL() 
    {
       super();
@@ -57,32 +59,41 @@ public class ConsultaSQL extends javax.swing.JFrame
    
    private void initGUI() 
    {
-      try {
+      try 
+      {
          setPreferredSize(new Dimension(1600, 600));
          this.setBounds(0, 0, 1000, 800);
-         setVisible(true);
          this.setTitle("Banco-Consultas");
          this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-         this.addComponentListener(new ComponentAdapter() {
-            public void componentHidden(ComponentEvent evt) {
+         this.addComponentListener(new ComponentAdapter() 
+         {
+            public void componentHidden(ComponentEvent evt) 
+            {
                thisComponentHidden(evt);
             }
-            public void componentShown(ComponentEvent evt) {
+            public void componentShown(ComponentEvent evt) 
+            {
                thisComponentShown(evt);
             }
          });
          
+         this.setVisible(false);
+    	 this.setVisible(true);
+         
          getContentPane().setLayout(null);
          {
+        	//Panel de las consultas
             pnlConsulta = new JPanel();
             pnlConsulta.setBounds(0, 0, 950, 280);
             getContentPane().add(pnlConsulta);
             pnlConsulta.setLayout(null);
             {
+               //Scroll del area de texto para la consulta
                scrConsulta = new JScrollPane();
                scrConsulta.setBounds(36, 5, 566, 176);
                pnlConsulta.add(scrConsulta);
                {
+            	  //Area de texto para la consulta
                   txtConsulta = new JTextArea();
                   scrConsulta.setViewportView(txtConsulta);
                   txtConsulta.setTabSize(3);
@@ -93,15 +104,18 @@ public class ConsultaSQL extends javax.swing.JFrame
                   txtConsulta.setFont(new java.awt.Font("Monospaced",0,12));
                   txtConsulta.setRows(10);
                   
-                  txtConsulta.addMouseListener(new MouseAdapter(){
-                      public void mouseClicked(MouseEvent e){
+                  txtConsulta.addMouseListener(new MouseAdapter()
+                  {
+                      public void mouseClicked(MouseEvent e)
+                      {
                     	  txtConsulta.setSelectedTextColor(Color.BLACK);
                           txtConsulta.setText("");
-                         }
-                     });
-               	  }
+                      }
+                  });
+               }
             }
             {
+               //Boton Ejecutar
          	   btnEjecutar = new JButton();
          	   btnEjecutar.setBounds(657, 65, 89, 23);
          	   pnlConsulta.add(btnEjecutar);
@@ -112,43 +126,9 @@ public class ConsultaSQL extends javax.swing.JFrame
          	         txtConsulta.setText("Ingrese una solicitud para la base.");
          	      }
          	   });
-         	 }
-             {  
-         		combo = new JComboBox<String>();
-         		combo.addItem("atm");
-         		combo.addItem("caja");
-         		combo.addItem("caja_ahorro");
-         		combo.addItem("ciudad");
-         		combo.addItem("cliente");
-         		combo.addItem("cliente_ca");
-         		combo.addItem("debito");
-         		combo.addItem("deposito");
-         		combo.addItem("empleado");
-         		combo.addItem("extraccion");
-         		combo.addItem("pago");
-         		combo.addItem("plazo_cliente");
-         		combo.addItem("plazo_fijo");
-         		combo.addItem("prestamo");
-         		combo.addItem("sucursal");
-         		combo.addItem("tarjeta");
-         		combo.addItem("tasa_plazo_fijo");
-         		combo.addItem("tasa_prestamo");
-         		combo.addItem("trans_cajas_ahorro");
-         		combo.addItem("transaccion");
-         		combo.addItem("transaccion_por_caja");
-         		combo.addItem("transferencia");
-         		combo.addItem("ventanilla");
-         		
-         		combo.addActionListener(new ActionListener() {
-        			public void actionPerformed(ActionEvent e) {
-        				tabla_elegida = combo.getSelectedItem().toString();
-        				btnListarActionPerformed(e);
-        			}
-        		});
-         		combo.setBounds(657, 99, 150, 23);
-         		pnlConsulta.add(combo);
          	}
             {
+            	//Boton Borrar
             	botonBorrar = new JButton();
             	botonBorrar.setBounds(657, 31, 89, 23);
             	pnlConsulta.add(botonBorrar);
@@ -158,29 +138,48 @@ public class ConsultaSQL extends javax.swing.JFrame
             		  txtConsulta.setText("");            			
             		}
             	});
-            }	
+            }
          }
          {
-        	 listaAtributos = new JList();
-        	 listaAtributos.setVisible(true);
-        	 listaAtributos.setBounds(814, 10, 784, 1650);
-        	 pnlConsulta.add(listaAtributos);
+        	{
+        		//Lista con los ctributos
+         		listaAtributos = new JList();
+         		listaAtributos.setVisible(true);
+         		listaAtributos.setBounds(814, 10, 784, 1650);
+         		pnlConsulta.add(listaAtributos);
+         	}
+        	{  
+        		//ComboBox para las tablas de la BD
+          		combo = new JComboBox<String>();
+          		combo.setBounds(657, 99, 150, 23);
+          		pnlConsulta.add(combo);
+          		combo.addActionListener(new ActionListener() {
+         			public void actionPerformed(ActionEvent e) {
+         				try 
+         				{
+	         				tabla_elegida = combo.getSelectedItem().toString();
+	         				btnListarActionPerformed(e);
+	         			}
+         				catch(NullPointerException nexcp){
+         					tabla_elegida = "Seleccionar opcion";
+         				}
+         			}
+         		});
+          	}
          }
          {
         	// crea la tabla  
         	tabla = new DBTable();
         	tabla.setBounds(0, 286, 684, 375);
-        	
-        	// Agrega la tabla al frame (no necesita JScrollPane como Jtable)
-        	getContentPane().add(tabla);           
-                      
-            // setea la tabla para sólo lectura (no se puede editar su contenido)  
+        	getContentPane().add(tabla);            
             tabla.setEditable(false);
          }
          
-	      } catch (Exception e) {
-	         e.printStackTrace();
-	      }
+	  } 
+      catch (Exception e) 
+      {
+	     e.printStackTrace();
+	  }
    }
 
    private void thisComponentShown(ComponentEvent evt) 
@@ -193,16 +192,20 @@ public class ConsultaSQL extends javax.swing.JFrame
       this.desconectarBD();
    }
 
+   //El accionar tras apretar el boton ejecutar
    private void btnEjecutarActionPerformed(ActionEvent evt) 
    {
-      this.refrescarTabla();      
+      this.refrescarTabla();
+      refrescarComboBox();
    }
    
+   //El accionar tras apretar un item del ComboBox
    private void btnListarActionPerformed(ActionEvent evt) 
    {
       this.refrescarTablaPorLista();      
    }
    
+   //Conecta con la base de datos con el user admin
    private void conectarBD()
    {
          try
@@ -217,6 +220,8 @@ public class ConsultaSQL extends javax.swing.JFrame
             //establece una conexión con la  B.D. "batallas"  usando directamante una tabla DBTable    
             tabla.connectDatabase(driver, uriConexion, usuario, clave);
             this.conexionBD = DriverManager.getConnection(uriConexion, usuario, clave);
+            
+            refrescarComboBox();
          }
          catch (SQLException ex)
          {
@@ -234,6 +239,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          }
    }
 
+   //Desconecta de la base de datos
    private void desconectarBD()
    {
          try
@@ -248,27 +254,32 @@ public class ConsultaSQL extends javax.swing.JFrame
          }      
    }
 
+   //Refresca la tabla con los resultados
    private void refrescarTabla()
    {
       try
-      {    
-    	  tabla.setSelectSql(this.txtConsulta.getText().trim());
-
-    	  tabla.createColumnModelFromQuery();    	    
-    	  for (int i = 0; i < tabla.getColumnCount(); i++)
-    	  {  		   		  
-    		 if	 (tabla.getColumn(i).getType()==Types.TIME)  
-    		 {    		 
-    		  tabla.getColumn(i).setType(Types.CHAR);  
-  	       	 }
-    		 if	 (tabla.getColumn(i).getType()==Types.DATE)
-    		 {
-    		    tabla.getColumn(i).setDateFormat("dd/MM/YYYY");
-    		 }
-          }  	     	  
-    	  tabla.refresh();
-          
+      {   
+    	  String comando = this.txtConsulta.getText().trim();
+    	  Statement stmt = conexionBD.createStatement();
+  		  if(stmt.execute(comando)) {
+	    	  tabla.setSelectSql(comando);
+	
+	    	  tabla.createColumnModelFromQuery();    	    
+	    	  for (int i = 0; i < tabla.getColumnCount(); i++)
+	    	  {  		   		  
+	    		 if	 (tabla.getColumn(i).getType()==Types.TIME)  
+	    		 {    		 
+	    		  tabla.getColumn(i).setType(Types.CHAR);  
+	  	       	 }
+	    		 if	 (tabla.getColumn(i).getType()==Types.DATE)
+	    		 {
+	    		    tabla.getColumn(i).setDateFormat("dd/MM/YYYY");
+	    		 }
+	          }  	     	  
+	    	  tabla.refresh();
+  		  }
     	  
+    	  refrescarComboBox();
     	  
        }
       catch (SQLException ex)
@@ -285,33 +296,64 @@ public class ConsultaSQL extends javax.swing.JFrame
       
    }
    
+   //Refresca la tabla con los atributos de la tabla elegida
    private void refrescarTablaPorLista()
    {  
-	consulta="DESCRIBE "+tabla_elegida;
-	try {
-		conectarBD();
-		Statement stmt = conexionBD.createStatement();
-		ResultSet rs= stmt.executeQuery(consulta);
-		int i=0;
-		listAtributos= new String[15];
-		
-		while(rs.next()){
-			listAtributos[i]=rs.getString(1);
-			i++;
+		consulta="DESCRIBE "+tabla_elegida;
+		try {
+			Statement stmt = conexionBD.createStatement();
+			ResultSet rs= stmt.executeQuery(consulta);
+			int i=0;
+			listAtributos= new String[15];
+			
+			while(rs.next()){
+				listAtributos[i]=rs.getString(1);
+				i++;
+			}
+	
+			listaAtributos.setListData(listAtributos);
+			rs.close();
 		}
-
-		listaAtributos.setListData(listAtributos);
-		rs.close();
-		desconectarBD();
-
-	}
-	catch (SQLException ex){
-		// en caso de error, se muestra la causa en la consola
-		System.out.println("SQLException: " + ex.getMessage());
-		System.out.println("SQLState: " + ex.getSQLState());
-		System.out.println("VendorError: " + ex.getErrorCode());
-		JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), ex.getMessage() + "\n","Error al ejecutar la consulta.",JOptionPane.ERROR_MESSAGE);
-	}
+		catch (SQLException ex){
+			// en caso de error, se muestra la causa en la consola
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+			JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), ex.getMessage() + "\n","Error al ejecutar la consulta.",JOptionPane.ERROR_MESSAGE);
+		}
    }
+   
+   //Refresca el combobox con las tablas de la base datos
+   private void refrescarComboBox() 
+   {
+	   try
+	      {
+		    if(combo.getItemCount()>0) 
+		    {
+		    	combo.removeAllItems();
+		    }
+		    
+	         Statement stmt = this.conexionBD.createStatement();
+	         
+	         String sql = "SHOW TABLES;";
+	         ResultSet rs = stmt.executeQuery(sql);
+	         while (rs.next()) {
+	        	  String str = rs.getString("Tables_in_banco");
+	        	  combo.addItem(str);
+	         }
+	         
+	         // se cierran los recursos utilizados 
+	         rs.close();
+	         stmt.close();
+	      }
+	      catch (SQLException ex)
+	      {
+	         // en caso de error, se muestra la causa en la consola
+	         System.out.println("SQLException: " + ex.getMessage());
+	         System.out.println("SQLState: " + ex.getSQLState());
+	         System.out.println("VendorError: " + ex.getErrorCode());
+	      }
+   }
+
 }
 

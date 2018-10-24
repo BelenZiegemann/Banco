@@ -1,4 +1,4 @@
-package Banco;
+ package Banco;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
@@ -90,4 +90,4 @@ public class VentanaPrincipal extends JFrame {
 		contentPane.add(btnAdministracion);
 				
 	}
-}//principal
+}

@@ -79,7 +79,7 @@ public class Cajero extends JFrame {
 	private void initGUI(){
 		try{
 			setTitle("Banco-Cajero");
-			setBounds(100, 100, 850, 400);
+			setBounds(300, 100, 850, 400);
 			setSize(600,600);
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -516,7 +516,7 @@ public class Cajero extends JFrame {
 	        	 // agrega una fila al modelo de la tabla
 	            ((DefaultTableModel) this.tablaMovimiento.getModel()).setRowCount(i + 1);
 	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
-	            this.tablaMovimiento.setValueAt(f.convertirDateAString(rs.getDate("fecha")), i, 0);
+	            this.tablaMovimiento.setValueAt(f.adelantarDia( f.convertirDateAString(rs.getDate("fecha")) ), i, 0);
 	            this.tablaMovimiento.setValueAt((rs.getTime("hora")).toString(), i, 1);
 	            this.tablaMovimiento.setValueAt(rs.getString("tipo"), i, 2);
 	            this.tablaMovimiento.setValueAt(rs.getInt("monto"), i, 3);

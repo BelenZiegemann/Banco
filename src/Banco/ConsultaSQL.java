@@ -62,7 +62,7 @@ public class ConsultaSQL extends javax.swing.JFrame
       try 
       {
          setPreferredSize(new Dimension(1600, 600));
-         this.setBounds(0, 0, 1000, 800);
+         this.setBounds(150, 0, 1000, 800);
          this.setTitle("Banco-Consultas");
          this.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
          this.addComponentListener(new ComponentAdapter() 

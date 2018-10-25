@@ -43,7 +43,7 @@ public class Consulta extends JFrame {
 
 	public Consulta() {
 		setTitle("Banco-Login administrador");
-		setBounds(100, 100, 450, 300);
+		setBounds(350, 150, 450, 300);
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		setContentPane(contentPane);

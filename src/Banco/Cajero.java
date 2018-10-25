@@ -102,11 +102,11 @@ public class Cajero extends JFrame {
 			pLogin.setLayout(null);
 			
 			
-			lNumero = new JLabel("Numero");
+			lNumero = new JLabel("Tarjeta");
 			lNumero.setBounds(10, 11, 71, 14);
 			pLogin.add(lNumero);
 			
-			lPassword = new JLabel("Password");
+			lPassword = new JLabel("PIN");
 			lPassword.setBounds(10, 54, 71, 14);
 			pLogin.add(lPassword);
 			

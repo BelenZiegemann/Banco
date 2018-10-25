@@ -19,6 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
@@ -29,9 +30,10 @@ public class Prestamos extends JFrame {
 	private JPanel contentPane;
 	
 	private JPanel pLogin;
+	private JPanel pPeriodos,pClienteSelect;
 	private JLabel lNumero;
 	private JLabel lPassword;
-	private JTextField tNumero;
+	private JTextField tNumero, tFinal, tInicial;
 	private JPasswordField pContraseña;
 	private JButton bIngresar;
 	
@@ -47,8 +49,12 @@ public class Prestamos extends JFrame {
 	private JTable tablaMorosos;
 	
 	protected Connection conexionBD = null;
+	private String consulta;
 	private String legajo;
 	private String password;
+	private Integer [] nros;
+	
+	private JLabel lFinal,lInicial;
 
 	
 	public Prestamos(){
@@ -61,7 +67,7 @@ public class Prestamos extends JFrame {
 	private void  initGUI() {
 		try{
 			//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			setBounds(100, 100, 450, 300);
+			setBounds(100, 100, 850, 600);
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			setContentPane(contentPane);
@@ -82,7 +88,7 @@ public class Prestamos extends JFrame {
 			contentPane.add(pLogin);
 			pLogin.setLayout(null);
 			
-			lNumero = new JLabel("Numero");
+			lNumero = new JLabel("Legajo");
 			lNumero.setBounds(10, 11, 71, 14);
 			pLogin.add(lNumero);
 			
@@ -104,9 +110,16 @@ public class Prestamos extends JFrame {
 				public void actionPerformed(ActionEvent e) {
 					legajo=tNumero.getText();
 					password=pContraseña.getText();
-					pConsulta.setVisible(true);
-					pLogin.setVisible(false);
-					//oyenteIngresar();
+					
+					if(verificacion()) 
+					{
+						pConsulta.setVisible(true);
+						pLogin.setVisible(false);
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(null, "Tarjeta o Contraseña Incorrecta");
+					}
 					
 				}
 			});
@@ -116,10 +129,38 @@ public class Prestamos extends JFrame {
 			
 			/*Comienzo panel pConsulta*/
 			pConsulta = new JPanel();
-			pConsulta.setBounds(0, 0, 434, 79);
+			pConsulta.setBounds(0, 0, 800, 180);
+			pConsulta.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.add(pConsulta);
 			pConsulta.setLayout(null);
 			pConsulta.setVisible(false);
+			
+			pClienteSelect = new JPanel();
+			pClienteSelect.setBounds(10, 0, 134, 90);
+			pClienteSelect.setVisible(true);
+			pClienteSelect.setLayout(null);
+			
+			lInicial = new JLabel("Tipo de doc");
+			lInicial.setBounds(10, 10, 86, 14);
+			pClienteSelect.add(lInicial);
+			
+			lFinal = new JLabel("Nro de doc");
+			lFinal.setBounds(10, 49, 86, 14);
+			pClienteSelect.add(lFinal);
+			
+			tInicial = new JTextField();
+			tInicial.setBounds(10, 24, 86, 20);
+			tInicial.setVisible(true);
+			pClienteSelect.add(tInicial);
+			tInicial.setColumns(10);
+			
+			tFinal = new JTextField();
+			tFinal.setBounds(10, 64, 86, 20);
+			tFinal.setVisible(true);
+			pClienteSelect.add(tFinal);
+			tFinal.setColumns(10);
+			
+			pConsulta.add(pClienteSelect);
 			
 			bCreacion = new JButton("Crear prestamo");
 			bCreacion.addActionListener(new ActionListener() {
@@ -130,7 +171,7 @@ public class Prestamos extends JFrame {
 					oyenteCreacionPrestamos();
 				}
 			});
-			bCreacion.setBounds(10, 29, 133, 23);
+			bCreacion.setBounds(10, 100, 133, 23);
 			pConsulta.add(bCreacion);
 			
 			bPago = new JButton("Cuotas");
@@ -142,7 +183,7 @@ public class Prestamos extends JFrame {
 					oyentePagoCuotas();
 				}
 			});
-			bPago.setBounds(174, 29, 107, 23);
+			bPago.setBounds(310, 100, 107, 23);
 			pConsulta.add(bPago);
 			
 			bCliente = new JButton("Morosos");
@@ -154,7 +195,7 @@ public class Prestamos extends JFrame {
 					oyenteClientesMorosos();
 				}
 			});
-			bCliente.setBounds(317, 29, 107, 23);
+			bCliente.setBounds(610, 100, 107, 23);
 			pConsulta.add(bCliente);
 			/*Fin panel pConsulta*/
 			
@@ -212,6 +253,7 @@ public class Prestamos extends JFrame {
 	               tablaMorosos.setAutoCreateRowSorter(true); // activa el ordenamiento por columnas, para
 	                                                   // que se ordene al hacer click en una columna
 	            }
+			
 			/*Fin creacion panel pCliente morosos*/
 			
 		}//try
@@ -222,6 +264,42 @@ public class Prestamos extends JFrame {
 	}//initgui
 	
 	/*Metodos privados*/
+	//Metodo privado para verificar que el usuario sea correcto.
+	private boolean verificacion() {
+		boolean valida = false;
+		consulta ="SELECT legajo FROM empleado WHERE password=md5('"+password+"');";
+		try {
+			conectarBD();
+			Statement stmt = conexionBD.createStatement();
+			ResultSet rs= stmt.executeQuery(consulta);
+			int i=0;
+			nros= new Integer[1];
+			
+			while(rs.next()){
+				nros[i]=rs.getInt(1);
+				i++;
+			}
+
+			rs.close();
+			
+			i=0;
+			while(!valida && i<nros.length) {
+				valida = nros[i].equals(Integer.parseInt(legajo));
+				i++;
+			}
+		}
+		catch (SQLException ex){
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+			JOptionPane.showMessageDialog(SwingUtilities.getWindowAncestor(this), ex.getMessage() + "\n","Error al ejecutar la consulta.",JOptionPane.ERROR_MESSAGE);
+		}
+		catch (Exception e) {
+			System.out.println("No se encontro");
+		}
+		
+		return valida;
+	 }
 	
 	private void thisComponentShown(ComponentEvent evt) 
 	{
@@ -289,31 +367,6 @@ public class Prestamos extends JFrame {
 	      }
 	 }
 	
-	 /*agregar md5*/
-	private void oyenteIngresar(){
-		 try
-	      {
-	         Statement stmt = this.conexionBD.createStatement();
-
-	         String sql = "SELECT legajo, password " + 
-	                      "FROM empleado " +
-	                      "WHERE legajo="+ legajo +"AND password";
-
-
-	         ResultSet rs = stmt.executeQuery(sql);
-	       
-	                 
-	       
-	         rs.close();
-	         stmt.close();
-	      }
-	      catch (SQLException ex)
-	      {
-	         System.out.println("SQLException: " + ex.getMessage());
-	         System.out.println("SQLState: " + ex.getSQLState());
-	         System.out.println("VendorError: " + ex.getErrorCode());
-	      }
-	}
 	private void oyenteCreacionPrestamos(){
 		
 	}

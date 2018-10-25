@@ -339,7 +339,7 @@ public class Cajero extends JFrame {
 	}
 	
 	
-	/*Metodos privados*/
+	//Metodo privado para verificar que el usuario sea correcto.
 	private boolean verificacion() {
 		boolean valida = false;
 		consulta="SELECT nro_tarjeta FROM tarjeta WHERE PIN=md5('"+password+"');";
@@ -440,8 +440,8 @@ public class Cajero extends JFrame {
 	         }
 	      }
 	 }
-	
-	
+	 
+	//Oyente del boton saldo
 	private void oyenteSaldo(){
 		try
 	      {
@@ -478,15 +478,24 @@ public class Cajero extends JFrame {
 	      }
 	}
 	
+	//Oyente del boton movimientos
 	private void oyenteMovimientos(){
 		try
 	      {
-	         // se crea una sentencia o comando jdbc para realizar la consulta 
+			 // se crea una sentencia o comando jdbc para realizar la consulta 
 	    	 // a partir de la coneccion establecida (conexionBD)
-	         Statement stmt = this.conexionBD.createStatement();
+			 Statement stmt = this.conexionBD.createStatement();
+			 String sql_temp = " SELECT nro_ca FROM tarjeta WHERE nro_tarjeta='"+nroTarjeta+"';" ;	 
+			 ResultSet rs_temp = stmt.executeQuery(sql_temp);
+			 int nro_ca=0;
+			 while(rs_temp.next()) 
+			 {
+				 nro_ca = rs_temp.getInt("nro_ca");
+				 System.out.println(nro_ca);
+			 }
 
 	         // se prepara el string SQL de la consulta
-	         String sql = "SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM trans_cajas_ahorro NATURAL JOIN tarjeta WHERE '"+ nroTarjeta +"'= nro_tarjeta AND PIN=md5('"+password+"') ORDER BY fecha,hora DESC LIMIT 15;" ;
+	         String sql = "SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM trans_cajas_ahorro WHERE nro_ca='"+ nro_ca +"' ORDER BY fecha DESC LIMIT 15;" ;
 
 	         // se ejecuta la sentencia y se recibe un resultset
 	         ResultSet rs = stmt.executeQuery(sql);
@@ -519,6 +528,7 @@ public class Cajero extends JFrame {
 	      }
 	}
 	
+	//Oyente del boton periodo
 	private void oyentePeriodos(){
 		try
 	      {
@@ -561,9 +571,5 @@ public class Cajero extends JFrame {
 	         System.out.println("VendorError: " + ex.getErrorCode());
 	      }
 	}
-	
-	
-	
 		
-		
-}//principal
+}

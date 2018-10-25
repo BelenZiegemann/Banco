@@ -177,10 +177,20 @@ public class Cajero extends JFrame {
 					pPeriodos.setVisible(true);
 					pMovimiento.setVisible(false);
 					pSaldo.setVisible(false);
+					//Adelanto la fecha en un dia por una cuestion de que sql toma valores del dia anterior al pasado.
 					desde = tInicial.getText();
-					desde = f.adelantarDia(desde);
 					hasta = tFinal.getText();
-					hasta = f.adelantarDia(hasta);
+					try 
+					{
+						desde = f.adelantarDia(desde);
+						hasta = f.adelantarDia(hasta);
+					}
+					catch(StringIndexOutOfBoundsException strexcp) 
+					{
+						JOptionPane.showMessageDialog(null, "Ingrese valores de fechas correctas dd/mm/aaaa o dd-mm-aaaa");
+						desde="";
+						hasta="";
+					}
 					oyentePeriodos();
 				}
 			});
@@ -441,7 +451,7 @@ public class Cajero extends JFrame {
 	      }
 	 }
 	 
-	//Oyente del boton saldo
+	 //Oyente del boton saldo
 	private void oyenteSaldo(){
 		try
 	      {
@@ -491,11 +501,10 @@ public class Cajero extends JFrame {
 			 while(rs_temp.next()) 
 			 {
 				 nro_ca = rs_temp.getInt("nro_ca");
-				 System.out.println(nro_ca);
 			 }
 
 	         // se prepara el string SQL de la consulta
-	         String sql = "SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM trans_cajas_ahorro WHERE nro_ca='"+ nro_ca +"' ORDER BY fecha DESC LIMIT 15;" ;
+	         String sql = "SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM trans_cajas_ahorro WHERE nro_ca='"+ nro_ca +"' ORDER BY fecha DESC, hora LIMIT 15;" ;
 
 	         // se ejecuta la sentencia y se recibe un resultset
 	         ResultSet rs = stmt.executeQuery(sql);
@@ -534,12 +543,29 @@ public class Cajero extends JFrame {
 	      {
 	         // se crea una sentencia o comando jdbc para realizar la consulta 
 	    	 // a partir de la coneccion establecida (conexionBD)
-	         Statement stmt = this.conexionBD.createStatement();
-
+			Statement stmt = this.conexionBD.createStatement();
+			 String sql_temp = " SELECT nro_ca FROM tarjeta WHERE nro_tarjeta='"+nroTarjeta+"';" ;	 
+			 ResultSet rs_temp = stmt.executeQuery(sql_temp);
+			 int nro_ca=0;
+			 while(rs_temp.next()) 
+			 {
+				 nro_ca = rs_temp.getInt("nro_ca");
+			 }
+			 
+			 //Prueba de la conversio de fechas
+			 /*
+			 String desde_convertido=Fechas.convertirStringADateSQL(desde).toString();
+			 String hasta_convertido=Fechas.convertirStringADateSQL(hasta).toString();
+			 System.out.println("desde: "+desde);
+			 System.out.println("desde_convertido: "+desde_convertido);
+			 System.out.println("hasta: "+hasta);
+			 System.out.println("hasta_convertido: "+hasta_convertido);
+			 */
+			 
 	         // se prepara el string SQL de la consulta
 	         String sql = "\n" + 
-	         		"SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM tarjeta NATURAL JOIN trans_cajas_ahorro " + 
-	         		"WHERE nro_tarjeta='"+nroTarjeta+"' AND PIN=md5('"+password+"') AND fecha BETWEEN '"+Fechas.convertirStringADateSQL(desde)+"' AND '"+Fechas.convertirStringADateSQL(hasta)+"' "+ 
+	         		"SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM trans_cajas_ahorro " + 
+	         		"WHERE nro_ca='"+ nro_ca +"' AND fecha BETWEEN '"+Fechas.convertirStringADateSQL(desde)+"' AND '"+Fechas.convertirStringADateSQL(hasta)+"' "+ 
 	         		"ORDER BY fecha, hora;";
 	         // se ejecuta la sentencia y se recibe un resultset
 	         ResultSet rs = stmt.executeQuery(sql);

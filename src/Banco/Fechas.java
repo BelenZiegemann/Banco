@@ -6,7 +6,11 @@ import java.text.SimpleDateFormat;
 
 public class Fechas
 {
-
+	/*
+	 java.util.Date --> dia mes nroDia hora año
+	 java.sql.Date --> año-mes-dia
+	*/
+	
    public static java.util.Date convertirStringADate(String p_fecha)
    {
       java.util.Date retorno = null;
@@ -18,7 +22,7 @@ public class Fechas
          }
          catch (ParseException ex)
          {
-            System.out.println(ex.getMessage());
+            //System.out.println(ex.getMessage());
          }
       }
       return retorno;
@@ -54,7 +58,6 @@ public class Fechas
       return retorno;
    }
 
-
    public static java.sql.Date convertirStringADateSQL(String p_fecha)
    {
       java.sql.Date retorno = null;
@@ -76,12 +79,47 @@ public class Fechas
         	sdf.parse(p_fecha);
             return true;
          }
-         catch (ParseException ex) {}
+         catch (ParseException ex) 
+         {
+        	 
+         }
       }
       return false;
    }
-   private boolean esBisiesto(int year) {
+   
+   private boolean esBisiesto(int year) 
+   {
 	    return year % 4 == 0 && year % 100 != 0 || year % 400 == 0;
+   }
+   
+   private boolean validarFecha(int dia, int mes, int anio) {
+	   boolean cumple= (mes>0 && mes<13);
+	   
+	   if(mes==1 || mes==3 || mes==5 || mes==7 || mes==8 || mes==10 || mes==12) 
+	   {
+		   if(dia>31 || dia<0) 
+		   {
+			   cumple=false;
+		   }
+	   }
+	   else 
+	   {
+		   if(mes==4 || mes==6 || mes==9 || mes==11) 
+		   {
+			   if(dia>30 || dia<0)
+			   {
+				   cumple=false;
+			   }
+		   }
+		   else 
+		   {
+			   if( (dia>28 && !esBisiesto(anio)) || (dia>29 && esBisiesto(anio)) || dia<0)
+			   {
+				   cumple=false;
+			   }
+		   }
+	   }
+	   return cumple;
    }
    
    public String adelantarDia(String s)
@@ -92,22 +130,27 @@ public class Fechas
 	   int dia = 0, mes = 0, anio = 0;
 	   
 	   //dia mes y anio como ints
-	   while(flag < 2) 
+	   while(s.charAt(flag)!='/' && s.charAt(flag)!='-') 
 	   {
 		   dia = dia*10 + Integer.parseInt(s.charAt(flag)+"");
 		   flag++;
 	   }
 	   flag++;
-	   while(flag < 5) 
+	   while(s.charAt(flag)!='/' && s.charAt(flag)!='-') 
 	   {
 		   mes = mes*10 + Integer.parseInt(s.charAt(flag)+"");
 		   flag++;
 	   }
 	   flag++;
-	   while(flag < 10) 
+	   while(flag < s.length()) 
 	   {
 		   anio = anio*10 + Integer.parseInt(s.charAt(flag)+"");
 		   flag++;
+	   }
+	   
+	   if(!validarFecha(dia,mes,anio))
+	   {
+		   s.charAt(flag);
 	   }
 	   
 	   //adelanto el dia de forma regulada
@@ -181,4 +224,5 @@ public class Fechas
 	   
 	   return fecha;
    }
+
 }

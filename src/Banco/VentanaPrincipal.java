@@ -27,7 +27,7 @@ public class VentanaPrincipal extends JFrame {
 	 */
 	public static void main(String[] args) {
 		//Prueba fecha
-		/*
+		
 		Fechas f = new Fechas();
 		String f1="09/10/2018";
 		java.util.Date d = f.convertirStringADate(f1);
@@ -47,7 +47,7 @@ public class VentanaPrincipal extends JFrame {
 		{
 			System.out.println("no son iguales.");
 		}
-		*/
+		
 		//--------
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {

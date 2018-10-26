@@ -99,8 +99,8 @@ public class ConsultaSQL extends javax.swing.JFrame
                   txtConsulta.setTabSize(3);
                   txtConsulta.setColumns(80);
                   txtConsulta.setBorder(BorderFactory.createEtchedBorder(BevelBorder.LOWERED));
+                  txtConsulta.setForeground(Color.GRAY);
                   txtConsulta.setText("Ingrese aqui una solicitud para la base.");
-                  txtConsulta.setSelectedTextColor(Color.GRAY);
                   txtConsulta.setFont(new java.awt.Font("Monospaced",0,12));
                   txtConsulta.setRows(10);
                   
@@ -108,7 +108,7 @@ public class ConsultaSQL extends javax.swing.JFrame
                   {
                       public void mouseClicked(MouseEvent e)
                       {
-                    	  txtConsulta.setSelectedTextColor(Color.BLACK);
+                    	  txtConsulta.setForeground(Color.BLACK);
                           txtConsulta.setText("");
                       }
                   });
@@ -123,6 +123,7 @@ public class ConsultaSQL extends javax.swing.JFrame
          	   btnEjecutar.addActionListener(new ActionListener() {
          	      public void actionPerformed(ActionEvent evt) {
          	         btnEjecutarActionPerformed(evt);
+         	         txtConsulta.setForeground(Color.GRAY);
          	         txtConsulta.setText("Ingrese una solicitud para la base.");
          	      }
          	   });

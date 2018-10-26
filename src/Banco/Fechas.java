@@ -92,137 +92,69 @@ public class Fechas
 	    return year % 4 == 0 && year % 100 != 0 || year % 400 == 0;
    }
    
-   private boolean validarFecha(int dia, int mes, int anio) {
-	   boolean cumple= (mes>0 && mes<13);
-	   
-	   if(mes==1 || mes==3 || mes==5 || mes==7 || mes==8 || mes==10 || mes==12) 
-	   {
-		   if(dia>31 || dia<0) 
-		   {
-			   cumple=false;
-		   }
-	   }
-	   else 
-	   {
-		   if(mes==4 || mes==6 || mes==9 || mes==11) 
-		   {
-			   if(dia>30 || dia<0)
-			   {
-				   cumple=false;
-			   }
-		   }
-		   else 
-		   {
-			   if( (dia>28 && !esBisiesto(anio)) || (dia>29 && esBisiesto(anio)) || dia<0)
-			   {
-				   cumple=false;
-			   }
-		   }
-	   }
-	   return cumple;
-   }
-   
-   public String adelantarDia(String s)
-   {
-	   //fecha con formato dd/mm/aaaa
-	   String fecha="";
+   public void validarFecha(String fecha) {
+	 //fecha con formato dd/mm/aaaa
 	   int flag=0;
 	   int dia = 0, mes = 0, anio = 0;
 	   
-	   //dia mes y anio como ints
-	   while(s.charAt(flag)!='/' && s.charAt(flag)!='-') 
+	   try 
 	   {
-		   dia = dia*10 + Integer.parseInt(s.charAt(flag)+"");
-		   flag++;
-	   }
-	   flag++;
-	   while(s.charAt(flag)!='/' && s.charAt(flag)!='-') 
-	   {
-		   mes = mes*10 + Integer.parseInt(s.charAt(flag)+"");
-		   flag++;
-	   }
-	   flag++;
-	   while(flag < s.length()) 
-	   {
-		   anio = anio*10 + Integer.parseInt(s.charAt(flag)+"");
-		   flag++;
-	   }
-	   
-	   if(!validarFecha(dia,mes,anio))
-	   {
-		   s.charAt(flag);
-	   }
-	   
-	   //adelanto el dia de forma regulada
-	   if(mes==1 || mes==3 || mes==5 || mes==7 || mes==8 || mes==10 || mes==12) 
-	   {
-		   if(dia==31 && mes==12) 
+		   //dia mes y anio como ints
+		   while(fecha.charAt(flag)!='/') 
 		   {
-			   anio++;
-			   mes=1;
-			   dia=1;
+			   dia = dia*10 + Integer.parseInt(fecha.charAt(flag)+"");
+			   flag++;
 		   }
-		   else 
+		   flag++;
+		   while(fecha.charAt(flag)!='/') 
 		   {
-			   if(dia==31) 
-			   {
-				   mes++;
-				   dia=1;
-			   }
-			   else 
-			   {
-				   dia++;
-			   }
+			   mes = mes*10 + Integer.parseInt(fecha.charAt(flag)+"");
+			   flag++;
 		   }
-	   }
-	   else 
-	   {
-		   if(mes==4 || mes==6 || mes==9 || mes==11) 
+		   flag++;
+		   while(flag < fecha.length()) 
 		   {
-			   if(dia==30)
+			   anio = anio*10 + Integer.parseInt(fecha.charAt(flag)+"");
+			   flag++;
+		   }
+		   
+		   boolean cumple= (mes>0 && mes<13);
+		   
+		   if(mes==1 || mes==3 || mes==5 || mes==7 || mes==8 || mes==10 || mes==12) 
+		   {
+			   if(dia>31 || dia<0) 
 			   {
-				   mes++;
-				   dia=1;
-			   }
-			   else 
-			   {
-				   dia++;
+				   cumple=false;
 			   }
 		   }
 		   else 
 		   {
-			   if( (dia==28 && !esBisiesto(anio)) || (dia==29 && esBisiesto(anio)) )
+			   if(mes==4 || mes==6 || mes==9 || mes==11) 
 			   {
-				   mes++;
-				   dia=1;
+				   if(dia>30 || dia<0)
+				   {
+					   cumple=false;
+				   }
 			   }
 			   else 
 			   {
-				   dia++;
+				   if( (dia>28 && !esBisiesto(anio)) || (dia>29 && esBisiesto(anio)) || dia<0)
+				   {
+					   cumple=false;
+				   }
 			   }
 		   }
-	   }
-	   
-	   //Lo vuelvo una fecha nuevamente
-	   if(dia/10==0)
+		   if(!cumple)
+		   {
+			   flag=500;
+			   fecha.charAt(flag);
+		   }
+	  }
+	   catch(Exception excp) 
 	   {
-		   fecha=fecha +"0"+dia+"/";
+		   flag=500;
+		   fecha.charAt(flag);
 	   }
-	   else 
-	   {
-		   fecha=fecha +dia+"/";
-	   }
-	   if(mes/10==0)
-	   {
-		   fecha=fecha +"0"+mes+"/";
-	   }
-	   else 
-	   {
-		   fecha=fecha +mes+"/";
-	   }
-	   fecha=fecha+anio;
-	   
-	   return fecha;
    }
 
 }

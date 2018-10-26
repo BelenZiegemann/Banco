@@ -67,7 +67,7 @@ public class Consulta extends JFrame {
 					dispose();
 				}
 				else{
-					JOptionPane.showMessageDialog(null, "Contraseña Incorrecta");
+					JOptionPane.showMessageDialog(null, "Contraseña Incorrecta", "Invalido", JOptionPane.ERROR_MESSAGE);
 				}
 				
 			}

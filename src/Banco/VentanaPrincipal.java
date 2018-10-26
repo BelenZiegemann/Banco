@@ -26,29 +26,6 @@ public class VentanaPrincipal extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		//Prueba fecha
-		
-		Fechas f = new Fechas();
-		String f1="09/10/2018";
-		java.util.Date d = f.convertirStringADate(f1);
-		System.out.println("String -> java.util.Date: "+d.toString());
-		java.sql.Date dsql = f.convertirStringADateSQL(f1);
-		System.out.println("String -> java.sql.Date: "+dsql.toString());
-		String f2= f.convertirDateAString(d);
-		System.out.println("java.util.Date -> String: "+f2);
-		String f3= f.convertirDateAStringDB(d);
-		System.out.println("java.util.Date -> StringDB: "+f3);
-		java.sql.Date dsql2 = f.convertirDateADateSQL(d);
-		if(dsql.equals(dsql2)) 
-		{
-			System.out.println("son iguales.");
-		}
-		else 
-		{
-			System.out.println("no son iguales.");
-		}
-		
-		//--------
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {

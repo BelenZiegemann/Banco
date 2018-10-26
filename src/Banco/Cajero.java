@@ -1,6 +1,7 @@
 package Banco;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.Font;
 
@@ -18,6 +19,8 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -285,7 +288,7 @@ public class Cajero extends JFrame {
 							pLogin.setVisible(false);
 						}
 						else{
-							JOptionPane.showMessageDialog(null, "Tarjeta o Contraseña Incorrecta");
+							JOptionPane.showMessageDialog(null, "Tarjeta o Contraseña Incorrecta","Invalido",JOptionPane.ERROR_MESSAGE);
 						}
 					}
 			});
@@ -332,21 +335,24 @@ public class Cajero extends JFrame {
 					pPeriodos.setVisible(true);
 					pMovimiento.setVisible(false);
 					pSaldo.setVisible(false);
-					//Adelanto la fecha en un dia por una cuestion de que sql toma valores del dia anterior al pasado.
 					desde = tInicial.getText();
 					hasta = tFinal.getText();
 					try 
 					{
-						//desde = f.adelantarDia(desde);
-						//hasta = f.adelantarDia(hasta);
+						f.validarFecha(desde);
+						f.validarFecha(hasta);
 					}
 					catch(StringIndexOutOfBoundsException strexcp) 
 					{
-						JOptionPane.showMessageDialog(null, "Ingrese valores de fechas correctas dd/mm/aaaa o dd-mm-aaaa");
+						JOptionPane.showMessageDialog(null, "Ingrese valores de fechas correctas dd/mm/aaaa (ej: 04/10/2018).", "Ingreso incorrecto" , JOptionPane.ERROR_MESSAGE);
 						desde="";
 						hasta="";
 					}
 					oyentePeriodos();
+					tInicial.setForeground(Color.LIGHT_GRAY);
+					tInicial.setText("dd/mm/aaaa");
+					tFinal.setForeground(Color.LIGHT_GRAY);
+					tFinal.setText("dd/mm/aaaa");
 				}
 			});
 			bPeriodo.setBounds(227, 11, 116, 23);
@@ -380,12 +386,32 @@ public class Cajero extends JFrame {
 			tInicial.setVisible(true);
 			pPeriodos.add(tInicial);
 			tInicial.setColumns(10);
+			tInicial.setForeground(Color.LIGHT_GRAY);
+			tInicial.setText("dd/mm/aaaa");
+			tInicial.addMouseListener(new MouseAdapter()
+            {
+                public void mouseClicked(MouseEvent e)
+                {
+              	  tInicial.setForeground(Color.BLACK);
+                  tInicial.setText("");
+                }
+            });
 			
 			tFinal = new JTextField();
 			tFinal.setBounds(10, 54, 86, 20);
 			tFinal.setVisible(true);
 			pPeriodos.add(tFinal);
 			tFinal.setColumns(10);
+			tFinal.setForeground(Color.LIGHT_GRAY);
+			tFinal.setText("dd/mm/aaaa");
+			tFinal.addMouseListener(new MouseAdapter()
+            {
+                public void mouseClicked(MouseEvent e)
+                {
+                	tFinal.setForeground(Color.BLACK);
+                	tFinal.setText("");
+                }
+            });
 			
 			pConsulta.add(pPeriodos);
 			
@@ -682,9 +708,8 @@ public class Cajero extends JFrame {
 	            ((DefaultTableModel) this.tablaMovimiento.getModel()).setRowCount(i + 1);
 	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
 	            //Recuperar como String "rs.getString("fecha")"
-	            this.tablaMovimiento.setValueAt(f.convertirDateAString(rs.getDate("fecha")) , i, 0);
-	            //this.tablaMovimiento.setValueAt(f.adelantarDia( f.convertirDateAString(rs.getDate("fecha")) ), i, 0);
-	            this.tablaMovimiento.setValueAt((rs.getTime("hora")).toString(), i, 1);
+	            this.tablaMovimiento.setValueAt(rs.getString("fecha") , i, 0);
+	            this.tablaMovimiento.setValueAt(rs.getString("hora"), i, 1);
 	            this.tablaMovimiento.setValueAt(rs.getString("tipo"), i, 2);
 	            this.tablaMovimiento.setValueAt(rs.getInt("monto"), i, 3);
 	            this.tablaMovimiento.setValueAt(rs.getInt("cod_caja"), i, 4);
@@ -720,14 +745,14 @@ public class Cajero extends JFrame {
 			 }
 			 
 			 //Prueba de la conversio de fechas
-			 /*
+			/*
 			 String desde_convertido=Fechas.convertirStringADateSQL(desde).toString();
 			 String hasta_convertido=Fechas.convertirStringADateSQL(hasta).toString();
 			 System.out.println("desde: "+desde);
 			 System.out.println("desde_convertido: "+desde_convertido);
 			 System.out.println("hasta: "+hasta);
 			 System.out.println("hasta_convertido: "+hasta_convertido);
-			 */
+			*/
 			 
 	         // se prepara el string SQL de la consulta
 	         String sql = "\n" + 
@@ -744,8 +769,8 @@ public class Cajero extends JFrame {
 	        	 // agrega una fila al modelo de la tabla
 	            ((DefaultTableModel) this.tablaMovPeriodo.getModel()).setRowCount(i + 1);
 	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
-	            this.tablaMovPeriodo.setValueAt(rs.getDate("fecha").toString(), i, 0);
-	            this.tablaMovPeriodo.setValueAt((rs.getTime("hora")).toString(), i, 1);
+	            this.tablaMovPeriodo.setValueAt(rs.getString("fecha"), i, 0);
+	            this.tablaMovPeriodo.setValueAt(rs.getString("hora"), i, 1);
 	            this.tablaMovPeriodo.setValueAt(rs.getString("tipo"), i, 2);
 	            this.tablaMovPeriodo.setValueAt(rs.getInt("monto"), i, 3);
 	            this.tablaMovPeriodo.setValueAt(rs.getInt("cod_caja"), i, 4);

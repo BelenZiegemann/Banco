@@ -2,6 +2,7 @@ package Banco;
 
 import java.awt.BorderLayout;
 import java.awt.EventQueue;
+import java.awt.Font;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -51,11 +52,33 @@ public class Cajero extends JFrame {
 	private JButton bSaldo;
 	private JButton bMovimientos;
 	private JButton bPeriodo;
+	private JButton bSalirConsulta;
 	
 	private JPanel pSaldo;
 	private JPanel pMovimiento;
 	private JPanel pMovPeriodo;
 	private JPanel pPeriodos;
+	
+	private JPanel pAtm;
+	private JButton bConsultas;
+	private JButton bExtraccion;
+	private JButton bTransferencia;
+	private JButton bSalir;
+	
+	private JPanel pExtraccion;
+	private JLabel lblMonto;
+	private JButton bConfirmar;
+	private JButton bCancelar;
+	private JTextField tMonto;
+	
+	private JPanel pTransferencia;
+	private JLabel lblCajaDestino;
+	private JLabel lblMontoTransferencia;
+	private JButton bConfirmarTransferencia;
+	private JButton bCancelarTransferencia;
+	private JTextField tNroDestino;
+	private JTextField tMontoTransferencia;
+	
 	
 	protected Connection conexionBD = null;
 	private String nroTarjeta;
@@ -95,6 +118,138 @@ public class Cajero extends JFrame {
 	            }
 	         });
 			
+	        
+	        /*Creacion panel atm*/
+	        
+	        pAtm = new JPanel();
+			contentPane.add(pAtm);
+			pAtm.setBounds(5, 5, 574, 545);
+			pAtm.setLayout(null);
+			pAtm.setVisible(false);
+			
+			bConsultas = new JButton("Consultas");
+			bConsultas.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					pConsulta.setVisible(true);
+					pAtm.setVisible(false);
+				}
+			});
+			bConsultas.setBounds(218, 42, 130, 37);
+			pAtm.add(bConsultas);
+			
+			bExtraccion = new JButton("Extraccion");
+			bExtraccion.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					pExtraccion.setVisible(true);
+					pAtm.setVisible(false);
+				}
+			});
+			bExtraccion.setBounds(218, 124, 130, 37);
+			pAtm.add(bExtraccion);
+			
+			bTransferencia = new JButton("Tranferencias");
+			bTransferencia.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					pTransferencia.setVisible(true);
+					pAtm.setVisible(false);
+				}
+			});
+			bTransferencia.setBounds(218, 206, 130, 37);
+			pAtm.add(bTransferencia);
+			
+			bSalir = new JButton("Salir");
+			bSalir.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					System.exit(0);
+				}
+			});
+			bSalir.setBounds(218, 344, 130, 29);
+			pAtm.add(bSalir);
+	        
+	        /*Fin creacion panel atm*/
+	        
+	        /*Creacion panel Extraccion*/
+			pExtraccion = new JPanel();
+			contentPane.add(pExtraccion);
+			pExtraccion.setBounds(5, 5, 574, 545);
+			pExtraccion.setLayout(null);
+			pExtraccion.setVisible(false);
+			
+			lblMonto = new JLabel("Monto");
+			lblMonto.setFont(new Font("Tahoma", Font.PLAIN, 12));
+			lblMonto.setBounds(72, 48, 79, 26);
+			pExtraccion.add(lblMonto);
+			
+			bConfirmar = new JButton("Confirmar");
+			bConfirmar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+				}
+			});
+			bConfirmar.setBounds(203, 135, 112, 26);
+			pExtraccion.add(bConfirmar);
+			
+			bCancelar = new JButton("Cancelar");
+			bCancelar.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					pAtm.setVisible(true);
+					pExtraccion.setVisible(false);
+				}
+			});
+			bCancelar.setBounds(203, 187, 112, 26);
+			pExtraccion.add(bCancelar);
+			
+			tMonto = new JTextField();
+			tMonto.setBounds(203, 52, 112, 20);
+			pExtraccion.add(tMonto);
+			tMonto.setColumns(10);
+		
+			/*Fin creacion panel Extraccion*/
+			
+			/*Creacion panel transferencia*/
+			pTransferencia = new JPanel();
+			contentPane.add(pTransferencia);
+			pTransferencia.setBounds(5, 5, 574, 545);
+			pTransferencia.setLayout(null);
+			pTransferencia.setVisible(false);
+			
+			lblCajaDestino = new JLabel("Caja de ahorro destino");
+			lblCajaDestino.setBounds(22, 68, 152, 29);
+			pTransferencia.add(lblCajaDestino);
+			
+			lblMontoTransferencia = new JLabel("Monto");
+			lblMontoTransferencia.setBounds(54, 120, 120, 23);
+			pTransferencia.add(lblMontoTransferencia);
+			
+			bConfirmarTransferencia = new JButton("Confirmar");
+			bConfirmarTransferencia.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+				}
+			});
+			bConfirmarTransferencia.setBounds(212, 189, 112, 23);
+			pTransferencia.add(bConfirmarTransferencia);
+			
+			bCancelarTransferencia = new JButton("Cancelar");
+			bCancelarTransferencia.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					pAtm.setVisible(true);
+					pTransferencia.setVisible(false);
+				}
+			});
+			bCancelarTransferencia.setBounds(212, 242, 112, 23);
+			pTransferencia.add(bCancelarTransferencia);
+			
+			tNroDestino = new JTextField();
+			tNroDestino.setBounds(212, 72, 112, 20);
+			pTransferencia.add(tNroDestino);
+			tNroDestino.setColumns(10);
+			
+			tMontoTransferencia = new JTextField();
+			tMontoTransferencia.setColumns(10);
+			tMontoTransferencia.setBounds(212, 121, 112, 20);
+			pTransferencia.add(tMontoTransferencia);
+			
+			/*Fin creacion panel transferencia*/
+			
 			/*Creacion panel login*/
 			pLogin = new JPanel();
 			pLogin.setBounds(0, 0, 434, 79);
@@ -126,7 +281,7 @@ public class Cajero extends JFrame {
 					password=pContraseña.getText();
 					
 					if(verificacion()) {
-							pConsulta.setVisible(true);
+							pAtm.setVisible(true);
 							pLogin.setVisible(false);
 						}
 						else{
@@ -155,7 +310,7 @@ public class Cajero extends JFrame {
 					oyenteSaldo();
 				}
 			});
-			bSaldo.setBounds(10, 29, 89, 23);
+			bSaldo.setBounds(33, 11, 110, 23);
 			pConsulta.add(bSaldo);
 			
 			bMovimientos = new JButton("Movimientos");
@@ -167,7 +322,7 @@ public class Cajero extends JFrame {
 					oyenteMovimientos();
 				}
 			});
-			bMovimientos.setBounds(153, 29, 110, 23);
+			bMovimientos.setBounds(33, 45, 110, 23);
 			pConsulta.add(bMovimientos);
 			
 			bPeriodo = new JButton("Por periodos");
@@ -194,8 +349,18 @@ public class Cajero extends JFrame {
 					oyentePeriodos();
 				}
 			});
-			bPeriodo.setBounds(308, 29, 116, 23);
+			bPeriodo.setBounds(227, 11, 116, 23);
 			pConsulta.add(bPeriodo);
+			
+			bSalirConsulta = new JButton("Salir");
+			bSalirConsulta.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					pAtm.setVisible(true);
+					pConsulta.setVisible(false);
+				}
+			});
+			bSalirConsulta.setBounds(227, 45, 116, 23);
+			pConsulta.add(bSalirConsulta);
 			
 			pPeriodos = new JPanel();
 			pPeriodos.setBounds(440, 0, 134, 79);

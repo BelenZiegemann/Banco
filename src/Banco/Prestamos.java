@@ -8,6 +8,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -21,6 +23,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -56,7 +59,11 @@ public class Prestamos extends JFrame {
 	private JPanel pPago;
 	
 	private JPanel pCliente;
-	private JTable tablaMorosos;
+	private JTable tablaPago;
+	private JTable tablaCliente;
+	private JScrollPane scrTablaPago;
+	private JScrollPane scrTablaCliente;
+	private JList<String> listaPagos;
 	
 	protected Connection conexionBD = null;
 	private String consulta;
@@ -71,6 +78,9 @@ public class Prestamos extends JFrame {
 	private LinkedList<Integer> prestamos_vigentes;
 	private LinkedList<Integer> prestamos_actuales;
 	private LinkedList<String> tipos_doc;
+	private LinkedList<Integer> prestamos_select;
+	private LinkedList<Integer> pagos_select;
+	private LinkedList<String> lista_select;
 	
 	private JLabel lNroDoc,lTipoDoc,lHeadSelect, lClienteSelect;
 	private JLabel lPeriodos, lMonto;
@@ -273,17 +283,15 @@ public class Prestamos extends JFrame {
 			/*Fin creacion panel pCreacion de prestamos*/
 			
 			pPago = new JPanel();
-			pPago.setBounds(10, 150, 334, 178);
+			pPago.setBounds(50, 150, 600, 200);
 			pConsulta.add(pPago);
 			pPago.setVisible(false);
-			pPago.setLayout(null);
 			
 			/*Creacion panel pCliente morosos*/
 			pCliente = new JPanel();
-			pCliente.setBounds(10, 150, 334, 178);
+			pCliente.setBounds(50, 150, 600, 200);
 			pConsulta.add(pCliente);
 			pCliente.setVisible(false);
-			pCliente.setLayout(null);
 			
 			{   
 		        //Creacion del panel pCreacion 
@@ -343,7 +351,101 @@ public class Prestamos extends JFrame {
 				lResultado.setBounds(110, 110, 250, 25);
 				pCreacion.add(lResultado);
 			}
-		}//try
+			{  
+	            scrTablaPago = new JScrollPane();
+	            scrTablaPago.setBounds(10,10,600,200);
+	            pPago.add(scrTablaPago, BorderLayout.CENTER);
+	            
+	            {  
+	               TableModel PagoModel = 
+	                  new DefaultTableModel  
+	                  (
+	                     new String[][] {},
+	                     new String[] {"Prestamo","Cuota","Monto","Fecha Venc."}
+	                  )
+	                  { 
+	            	     Class[] types = new Class[] {java.lang.Integer.class, java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class };
+	                     boolean[] canEdit = new boolean[] { false, false, false, false };
+	                      
+	                     public Class getColumnClass(int columnIndex) 
+	                     {
+	                        return types[columnIndex];
+	                     }
+	                     public boolean isCellEditable(int rowIndex, int columnIndex) 
+	                     {
+	                        return canEdit[columnIndex];
+	                     }
+	                  };
+	               tablaPago = new JTable();
+	               scrTablaPago.setViewportView(tablaPago);                
+	               tablaPago.setModel(PagoModel); 
+	               tablaPago.setAutoCreateRowSorter(true);
+	               tablaPago.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+	            	    public void valueChanged(ListSelectionEvent event) {
+	            	        if (tablaPago.getSelectedRow()>-1) 
+	            	        {
+	            	        	int e1 = Integer.parseInt(tablaPago.getValueAt(tablaPago.getSelectedRow(), 0).toString());
+	            	        	int e2 = Integer.parseInt(tablaPago.getValueAt(tablaPago.getSelectedRow(), 1).toString());
+	            	            if(agregar(e1,e2)) 
+	            	            {
+	            	            	prestamos_select.add(e1);
+	            	            	pagos_select.add(e2);
+	            	            	refrescarListaPagos();
+	            	            }
+	            	        }
+	            	    }
+	            	});
+	               
+	               listaPagos = new JList<String>();
+	               listaPagos.setVisible(true);
+	               listaPagos.setBounds(800, 10, 600, 250);
+	         		pPago.add(listaPagos);
+	            }
+	         }
+			{  
+	            scrTablaCliente = new JScrollPane();
+	            scrTablaCliente.setBounds(10,10,800,200);
+	            pCliente.add(scrTablaCliente, BorderLayout.CENTER);
+	            
+	            {  
+	               TableModel ClienteModel = 
+	                  new DefaultTableModel  
+	                  (
+	                     new String[][] {},
+	                     new String[] {"Nro Cliente","Tipo Doc.","Nro Doc","Nombre","Apellido","Prestamo","Monto","Periodo","Cuota","Cuotas Morosas"}
+	                  )
+	                  { 
+	            	     Class[] types = new Class[] 
+        	    		 {
+	            	    		 java.lang.Integer.class, //1 nro cliente
+	            	    		 java.lang.String.class, //2 tipo doc
+	            	    		 java.lang.Integer.class, //3 nro doc
+	            	    		 java.lang.String.class, //4 nombre
+	            	    		 java.lang.String.class, //5 apellido
+	            	    		 java.lang.Integer.class, //6 prestamo
+	            	    		 java.lang.Integer.class, //7 monto
+	            	    		 java.lang.Integer.class, //8 periodo
+	            	    		 java.lang.Integer.class, //9 cuotas
+	            	    		 java.lang.Integer.class //10 cuotas morosas
+        	    		 };
+	                     boolean[] canEdit = new boolean[] { false, false, false, false, false, false, false, false, false, false };
+	                      
+	                     public Class getColumnClass(int columnIndex) 
+	                     {
+	                        return types[columnIndex];
+	                     }
+	                     public boolean isCellEditable(int rowIndex, int columnIndex) 
+	                     {
+	                        return canEdit[columnIndex];
+	                     }
+	                  };
+	               tablaCliente = new JTable();
+	               scrTablaCliente.setViewportView(tablaCliente);                
+	               tablaCliente.setModel(ClienteModel); 
+	               tablaCliente.setAutoCreateRowSorter(true);
+	            }
+	         }
+		}
 		catch(Exception e){
 			e.printStackTrace();
 		}
@@ -504,6 +606,18 @@ public class Prestamos extends JFrame {
 	      }
 	}
 	
+	private void refrescarListaPagos() 
+	{
+		int i=0;
+		lista_select= new LinkedList<String>();
+		
+		while(i<prestamos_select.size() && i<pagos_select.size()){
+			lista_select.add(prestamos_select.get(i)+","+pagos_select.get(i));
+			i++;
+		}
+		listaPagos.setListData(lista_select.toArray(new String[lista_select.size()]));
+	}
+	
 	private void establecerEstado() 
 	{
 		boolean habilitado = true;
@@ -584,6 +698,19 @@ public class Prestamos extends JFrame {
 		}
 	}
 	
+	private boolean agregar(int e1, int e2) 
+	{
+		boolean agregar = true;
+		int i=0;
+		
+		while(i<prestamos_select.size() && i<pagos_select.size() && agregar) 
+		{
+			agregar = prestamos_select.get(i)!=e1 || pagos_select.get(i)!=e2;
+			i++;
+		}
+		return agregar;
+	}
+	
 	private void thisComponentShown(ComponentEvent evt) 
 	{
 	      this.conectarBD();
@@ -652,7 +779,8 @@ public class Prestamos extends JFrame {
 	      }
 	 }
 	
-	private void oyenteCrearUnPrestamo(){
+	private void oyenteCrearUnPrestamo()
+	{
 		 boolean puede_crear=false;
 		 double monto = Double.parseDouble(tMonto.getText());
 		 puede_crear = verificarMonto(monto);
@@ -693,40 +821,62 @@ public class Prestamos extends JFrame {
 		 }
 	}
 	
-	private void oyentePagoCuotas(){
-		
+	private void oyentePagoCuotas()
+	{
+		try
+	      {
+			prestamos_select= new LinkedList<Integer>();
+			pagos_select= new LinkedList<Integer>();
+			
+	         Statement stmt = this.conexionBD.createStatement();
+	         String sql = "SELECT nro_prestamo,nro_pago,monto,fecha_venc FROM cliente NATURAL JOIN prestamo NATURAL JOIN pago WHERE nro_doc="+nroDoc+" AND tipo_doc='"+tipoDoc+"' AND fecha_pago is NULL;";
+	         ResultSet rs = stmt.executeQuery(sql);
+	         
+	         ((DefaultTableModel) this.tablaPago.getModel()).setRowCount(0);
+	         int i = 0;
+	         while (rs.next())
+	         {
+	            ((DefaultTableModel) this.tablaPago.getModel()).setRowCount(i + 1);
+	            this.tablaPago.setValueAt(rs.getInt("nro_prestamo"), i, 0);
+	            this.tablaPago.setValueAt(rs.getInt("nro_pago"), i, 1);            
+	            this.tablaPago.setValueAt(rs.getString("monto"), i, 2);
+	            this.tablaPago.setValueAt(rs.getString("fecha_venc"), i, 3);
+	            i++;
+	         }
+	         rs.close();
+	         stmt.close();
+	      }
+	      catch (SQLException ex)
+	      {
+	         System.out.println("SQLException: " + ex.getMessage());
+	         System.out.println("SQLState: " + ex.getSQLState());
+	         System.out.println("VendorError: " + ex.getErrorCode());
+	      }
 	}
 	
 	private void oyenteClientesMorosos(){
 		 try
 	      {
-	         // se crea una sentencia o comando jdbc para realizar la consulta 
-	    	 // a partir de la coneccion establecida (conexionBD)
 	         Statement stmt = this.conexionBD.createStatement();
+	         String sql = "SELECT nro_cliente, tipo_doc, nro_doc, nombre, apellido, nro_prestamo, monto, cant_meses, valor_cuota, COUNT(fecha_venc) AS cuotas_morosas "
+	         		+ "FROM pago NATURAL JOIN prestamo NATURAL JOIN cliente WHERE nro_doc="+nroDoc+" AND tipo_doc='"+tipoDoc+"' AND DATEDIFF(CURDATE(), fecha_venc)>=60 GROUP BY nro_prestamo;";
 
-	         // se prepara el string SQL de la consulta
-	         String sql = "SELECT legajo, apellido,nombre, tipo_doc, nro_doc, direccion, telefono, cargo, nro_suc" + 
-	                      "FROM empleado";
-
-	         // se ejecuta la sentencia y se recibe un resultset
 	         ResultSet rs = stmt.executeQuery(sql);
-	         // se recorre el resulset y se actualiza la tabla en pantalla
-	         ((DefaultTableModel) this.tablaMorosos.getModel()).setRowCount(0);
+	         ((DefaultTableModel) this.tablaCliente.getModel()).setRowCount(0);
 	         int i = 0;
 	         while (rs.next())
 	         {
-	        	// agrega una fila al modelo de la tabla
-	            ((DefaultTableModel) this.tablaMorosos.getModel()).setRowCount(i + 1);
-	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
-	            this.tablaMorosos.setValueAt(rs.getInt("legajo"), i, 0);
-	            this.tablaMorosos.setValueAt(rs.getString("apellido"), i, 1);            
-	            this.tablaMorosos.setValueAt(rs.getString("nombre"), i, 2);
-	            this.tablaMorosos.setValueAt(rs.getString("tipo_doc"), i, 3);
-	            this.tablaMorosos.setValueAt(rs.getString("nro_doc"), i, 4);            
-	            this.tablaMorosos.setValueAt(rs.getString("direccion"), i, 5);
-	            this.tablaMorosos.setValueAt(rs.getLong("telefono"), i, 6);
-	            this.tablaMorosos.setValueAt(rs.getString("cargo"), i, 7);            
-	            this.tablaMorosos.setValueAt(rs.getInt("nro_suc"), i, 8);
+	            ((DefaultTableModel) this.tablaCliente.getModel()).setRowCount(i + 1);
+	            this.tablaCliente.setValueAt(rs.getInt("nro_cliente"), i, 0);
+	            this.tablaCliente.setValueAt(rs.getString("tipo_doc"), i, 1);
+	            this.tablaCliente.setValueAt(rs.getInt("nro_doc"), i, 2);
+	            this.tablaCliente.setValueAt(rs.getString("nombre"), i, 3);
+	            this.tablaCliente.setValueAt(rs.getString("apellido"), i, 4);
+	            this.tablaCliente.setValueAt(rs.getInt("nro_prestamo"), i, 5);
+	            this.tablaCliente.setValueAt(rs.getInt("monto"), i, 6);
+	            this.tablaCliente.setValueAt(rs.getInt("cant_meses"), i, 7);
+	            this.tablaCliente.setValueAt(rs.getInt("valor_cuota"), i, 8);
+	            this.tablaCliente.setValueAt(rs.getInt("cuotas_morosas"), i, 9);
 	            i++;
 	         }
 	         // se cierran los recursos utilizados 

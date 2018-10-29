@@ -32,6 +32,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -48,6 +49,7 @@ public class Prestamos extends JFrame {
 	private JTextField tMonto;
 	private JPasswordField pContraseña;
 	private JButton bIngresar;
+	private JButton bPagarCuotas;
 	
 	private JPanel pConsulta;
 	private JButton bCreacion,bCrearPres;
@@ -84,7 +86,7 @@ public class Prestamos extends JFrame {
 	
 	private JLabel lNroDoc,lTipoDoc,lHeadSelect, lClienteSelect;
 	private JLabel lPeriodos, lMonto;
-	private JLabel lTitleCreacion, lTitlePago, lTitleCliente, lEstado, lResultado;
+	private JLabel lTitleCreacion, lTitlePago, lTitleCliente, lEstado, lResultado, lCuotasSelect;
 	
 	private JComboBox<String> comboPeriodo;
 	
@@ -98,7 +100,7 @@ public class Prestamos extends JFrame {
 	private void  initGUI() {
 		try{
 			//setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			setBounds(100, 100, 850, 600);
+			setBounds(100, 100, 1150, 600);
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			setContentPane(contentPane);
@@ -160,16 +162,18 @@ public class Prestamos extends JFrame {
 			
 			/*Comienzo panel pConsulta*/
 			pConsulta = new JPanel();
-			pConsulta.setBounds(0, 0, 800, 680);
+			pConsulta.setBounds(0, 0, 1100, 500);
 			pConsulta.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.add(pConsulta);
 			pConsulta.setLayout(null);
 			pConsulta.setVisible(false);
+			pConsulta.setBorder(new LineBorder(Color.BLUE,2));
 			
 			pClienteSelect = new JPanel();
 			pClienteSelect.setBounds(10, 0, 334, 90);
 			pClienteSelect.setVisible(true);
 			pClienteSelect.setLayout(null);
+			pClienteSelect.setBorder(new LineBorder(Color.GREEN,2));
 			
 			//Zona de seleccion de cliente
 			lTipoDoc = new JLabel("Tipo de doc");
@@ -275,26 +279,31 @@ public class Prestamos extends JFrame {
 			
 			/*Comienzo panel pCreacion de prestamos*/
 			pCreacion = new JPanel();
-			pCreacion.setBounds(10, 150, 400, 400);
+			pCreacion.setBounds(100, 150, 400, 200);
 			pConsulta.add(pCreacion);
 			pCreacion.setVisible(false);
 			pCreacion.setLayout(null);
+			pCreacion.setBorder(new LineBorder(Color.RED,2));
 			
 			/*Fin creacion panel pCreacion de prestamos*/
 			
 			pPago = new JPanel();
-			pPago.setBounds(50, 150, 600, 200);
+			pPago.setBounds(100, 150, 800, 300);
 			pConsulta.add(pPago);
 			pPago.setVisible(false);
+			pPago.setLayout(null);
+			pPago.setBorder(new LineBorder(Color.RED,2));
 			
 			/*Creacion panel pCliente morosos*/
 			pCliente = new JPanel();
-			pCliente.setBounds(50, 150, 600, 200);
+			pCliente.setBounds(50, 150, 1020, 300);
 			pConsulta.add(pCliente);
 			pCliente.setVisible(false);
+			pCliente.setLayout(null);
+			pCliente.setBorder(new LineBorder(Color.RED,2));
 			
 			{   
-		        //Creacion del panel pCreacion 
+		        //-----------------Creacion del panel pCreacion-------------------------
 				//Titulo
 				lTitleCreacion = new JLabel("Creacion de Prestamo");
 				lTitleCreacion.setBounds(150, 10, 250, 20);
@@ -352,8 +361,22 @@ public class Prestamos extends JFrame {
 				pCreacion.add(lResultado);
 			}
 			{  
+				//-------------------Creacion del panel pPago---------------------------
+				//Titulo
+				lTitlePago = new JLabel("Pago de cuotas");
+				lTitlePago.setBounds(150, 10, 250, 40);
+				lTitlePago.setFont(new Font("Serif", Font.PLAIN, 24));
+				lTitlePago.setForeground(Color.BLACK);
+				pPago.add(lTitlePago);
+				
+				lCuotasSelect = new JLabel("Cuotas selectas");
+				lCuotasSelect.setBounds(620, 10, 250, 40);
+				lCuotasSelect.setFont(new Font("Serif", Font.PLAIN, 14));
+				lCuotasSelect.setForeground(Color.BLACK);
+				pPago.add(lCuotasSelect);
+				
 	            scrTablaPago = new JScrollPane();
-	            scrTablaPago.setBounds(10,10,600,200);
+	            scrTablaPago.setBounds(10,50,600,200);
 	            pPago.add(scrTablaPago, BorderLayout.CENTER);
 	            
 	            {  
@@ -398,13 +421,32 @@ public class Prestamos extends JFrame {
 	               
 	               listaPagos = new JList<String>();
 	               listaPagos.setVisible(true);
-	               listaPagos.setBounds(800, 10, 600, 250);
-	         		pPago.add(listaPagos);
+	               listaPagos.setBounds(620, 50, 150, 200);
+	               listaPagos.setBorder(new LineBorder(Color.BLACK,2));
+	         	   pPago.add(listaPagos);
+	         	   
+	         	   bPagarCuotas = new JButton("Pagar");
+				   bPagarCuotas.setBounds(620, 260, 150, 25);
+				   pPago.add(bPagarCuotas);
+				   bPagarCuotas.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							oyentePagarSeleccionadas();
+						}
+					});
 	            }
 	         }
 			{  
+				//-------------------Creacion del panel pPago---------------------------
+				//Titulo
+				lTitleCliente = new JLabel("Morosos");
+				lTitleCliente.setBounds(250, 10, 250, 40);
+				lTitleCliente.setFont(new Font("Serif", Font.PLAIN, 24));
+				lTitleCliente.setForeground(Color.BLACK);
+				pCliente.add(lTitleCliente);
+				
 	            scrTablaCliente = new JScrollPane();
-	            scrTablaCliente.setBounds(10,10,800,200);
+	            scrTablaCliente.setBounds(10,50,1000,200);
+	            scrTablaCliente.setBorder(new LineBorder(Color.ORANGE,2));
 	            pCliente.add(scrTablaCliente, BorderLayout.CENTER);
 	            
 	            {  
@@ -443,6 +485,8 @@ public class Prestamos extends JFrame {
 	               scrTablaCliente.setViewportView(tablaCliente);                
 	               tablaCliente.setModel(ClienteModel); 
 	               tablaCliente.setAutoCreateRowSorter(true);
+	               tablaCliente.setBounds(10,40,900,200);
+	               tablaCliente.setBorder(new LineBorder(Color.CYAN,2));
 	            }
 	         }
 		}
@@ -612,7 +656,7 @@ public class Prestamos extends JFrame {
 		lista_select= new LinkedList<String>();
 		
 		while(i<prestamos_select.size() && i<pagos_select.size()){
-			lista_select.add(prestamos_select.get(i)+","+pagos_select.get(i));
+			lista_select.add("prestamo: "+prestamos_select.get(i)+", cuota: "+pagos_select.get(i));
 			i++;
 		}
 		listaPagos.setListData(lista_select.toArray(new String[lista_select.size()]));
@@ -761,7 +805,7 @@ public class Prestamos extends JFrame {
 	      }
 	 }
 
-	 private void desconectarBD()
+	private void desconectarBD()
 	 {
 	      if (this.conexionBD != null)
 	      {
@@ -821,6 +865,14 @@ public class Prestamos extends JFrame {
 		 }
 	}
 	
+	private void oyentePagarSeleccionadas()
+	{
+		prestamos_select= new LinkedList<Integer>();
+    	pagos_select= new LinkedList<Integer>();
+		lista_select= new LinkedList<String>();
+		listaPagos.setListData(lista_select.toArray(new String[lista_select.size()]));
+	}
+	
 	private void oyentePagoCuotas()
 	{
 		try
@@ -853,6 +905,7 @@ public class Prestamos extends JFrame {
 	         System.out.println("VendorError: " + ex.getErrorCode());
 	      }
 	}
+	
 	
 	private void oyenteClientesMorosos(){
 		 try

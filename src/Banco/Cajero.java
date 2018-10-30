@@ -11,6 +11,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
+import com.mysql.cj.jdbc.exceptions.MysqlDataTruncation;
+import com.mysql.cj.jdbc.exceptions.SQLExceptionsMapping;
+
 import quick.dbtable.DBTable;
 
 import javax.swing.JLabel;
@@ -191,6 +194,7 @@ public class Cajero extends JFrame {
 			bConfirmar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					extraccion();
+					tMontoExtraccion.setText("");
 				}
 			});
 			bConfirmar.setBounds(203, 135, 112, 26);
@@ -231,6 +235,8 @@ public class Cajero extends JFrame {
 			bConfirmarTransferencia.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					transferencia();
+					tNroDestino.setText("");
+					tMontoTransferencia.setText("");
 				}
 			});
 			bConfirmarTransferencia.setBounds(212, 189, 112, 23);
@@ -789,16 +795,6 @@ public class Cajero extends JFrame {
 				 nro_ca = rs_temp.getInt("nro_ca");
 			 }
 			 
-			 //Prueba de la conversio de fechas
-			/*
-			 String desde_convertido=Fechas.convertirStringADateSQL(desde).toString();
-			 String hasta_convertido=Fechas.convertirStringADateSQL(hasta).toString();
-			 System.out.println("desde: "+desde);
-			 System.out.println("desde_convertido: "+desde_convertido);
-			 System.out.println("hasta: "+hasta);
-			 System.out.println("hasta_convertido: "+hasta_convertido);
-			*/
-			 
 	         // se prepara el string SQL de la consulta
 	         String sql = "\n" + 
 	         		"SELECT fecha, hora, tipo, IF(tipo<>'deposito', concat('-',monto), monto) AS monto, cod_caja, destino FROM trans_cajas_ahorro " + 
@@ -834,95 +830,78 @@ public class Cajero extends JFrame {
 	         System.out.println("VendorError: " + ex.getErrorCode());
 	      }
 	}
-
-	/*private void extraccion() {
+	
+	private void extraccion() 
+	{	
 		try 
 		{
-			if(verificacionMontoExtraccion()) 
+			if(!verificacionMontoExtraccion()) 
 			{
-				Statement stmt= this.conexionBD.createStatement();
-				ResultSet rs = stmt.executeQuery("CALL extraccion("+nroTarjeta+","+codigo_cajero+","+monto+");");
-				if(rs==null)
+				JOptionPane.showMessageDialog(this,"Se debe ingresar un monto valido, mayor a $0.","Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			else
+			{
+				if (monto <=0)
 				{
-					establecerSaldo();
-					JOptionPane.showMessageDialog(null,"La extracción se ha realizado correctamente.\n Saldo actual:"+saldo,"Extracción finalizada", JOptionPane.INFORMATION_MESSAGE);
+					JOptionPane.showMessageDialog(this,"El monto debe ser mayor o igual a $0.","Error", JOptionPane.ERROR_MESSAGE);
+					return;
 				}
 				else 
 				{
-					JOptionPane.showMessageDialog(this,"La extraccion no se pudo realizar por razones de la base de datos.","Error", JOptionPane.ERROR_MESSAGE);
+					int resultado = JOptionPane.showConfirmDialog(null, "¿Está seguro que desea retirar $"+monto+"?", "Confirmar operación",JOptionPane.OK_CANCEL_OPTION);
+					if (resultado == JOptionPane.OK_OPTION) 
+					{
+						Statement stmt= this.conexionBD.createStatement();
+						String sql = "CALL extraccion("+nroTarjeta+","+codigo_cajero+","+monto+");";
+						stmt.executeQuery(sql);
+						ResultSet rs =stmt.getResultSet();
+						
+						if(rs==null)
+						{
+							establecerSaldo();
+							JOptionPane.showMessageDialog(null,"La extracción se ha realizado correctamente.\n Saldo actual: $"+saldo,"Extracción finalizada", JOptionPane.INFORMATION_MESSAGE);
+						}
+						else 
+						{
+							if(rs.next()) 
+							{
+								String msg=rs.getString(1);
+								JOptionPane.showMessageDialog(this,msg,"Error", JOptionPane.ERROR_MESSAGE);
+							}
+						}
+					}
+					else
+					return;
 				}
+			
 			}
 		} 
-		catch (SQLException ex)
+		catch (SQLException exc) 
 		{
-			// en caso de error, se muestra la causa en la consola
-			System.out.println("SQLException: " + ex.getMessage());
-			System.out.println("SQLState: " + ex.getSQLState());
-			System.out.println("VendorError: " + ex.getErrorCode());
-		}
-	}*/
-	
-	private void extraccion() {
-		
-		try {
-		if(!verificacionMontoExtraccion()) 
-		{
-			JOptionPane.showMessageDialog(this,"Se debe ingresar un monto.","Error", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		else
-		{
-			if (monto <=0){
-				JOptionPane.showMessageDialog(this,"El monto debe ser mayor o igual a 0.","Error", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			else {
-				int n = JOptionPane.showConfirmDialog(null, "¿Está seguro que desea retirar $"+monto+"?", "Confirmar operación",JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
-				if (n == JOptionPane.YES_OPTION) {
-					Statement stmt= this.conexionBD.createStatement();
-					String sql = "CALL extraccion("+nroTarjeta+","+codigo_cajero+","+monto+");";
-					System.out.println(sql);
-					stmt.executeQuery(sql);
-					ResultSet rs=stmt.getResultSet();
-					if(rs==null){
-						establecerSaldo();
-						JOptionPane.showMessageDialog(null,"La extracción se ha realizado correctamente.\n Saldo actual: $"+saldo,"Extracción finalizada", JOptionPane.INFORMATION_MESSAGE);
-					}
-					else {
-						rs.next();
-						String msg=new String(rs.getBytes(1),"utf8");
-						JOptionPane.showMessageDialog(this,msg,"Error", JOptionPane.ERROR_MESSAGE);
-					}
-				}
-				else
-					return;
-			}
-			
-		}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		} catch (NumberFormatException e){
-			JOptionPane.showMessageDialog(this,"Solo se puede ingresar números naturales.","Error", JOptionPane.ERROR_MESSAGE);
-		} catch (UnsupportedEncodingException e){
-			e.printStackTrace();
+			exc.printStackTrace();
+			if(exc instanceof MysqlDataTruncation) 
+	    	{
+	    		JOptionPane.showMessageDialog(this,"Monto mayor del permitido.","Error en la entrada", JOptionPane.ERROR_MESSAGE);
+	    	}
 		}
 	}
-	
 	
 	private void transferencia() 
 	{
 	    if(!verificacionMontoTransferencia()) 
 	    {
-	    	JOptionPane.showMessageDialog(this,"Se debe ingresar la caja de ahorro destino y un monto","Error al ingresar los datos", JOptionPane.INFORMATION_MESSAGE);
+	    	JOptionPane.showMessageDialog(this,"Se debe ingresar la caja de ahorro destino y un monto validos","Error al ingresar los datos", JOptionPane.ERROR_MESSAGE);
 	    }
 	    else 
 	    {
-		    try{
+		    try
+		    {
 		    	int result = JOptionPane.showConfirmDialog(null,"¿Esta seguro de realizar esta operación?", "Transferencia", JOptionPane.OK_CANCEL_OPTION);
-			    if (result == JOptionPane.OK_OPTION) {
+			    if (result == JOptionPane.OK_OPTION) 
+			    {
 			    	Statement stmt= conexionBD.createStatement();
-			    	String sql = "CALL transferencia("+nroTarjeta+","+destino+","+codigo_cajero+","+monto+");";
-			    	System.out.println(sql);
+			    	String sql = "CALL transferir("+nroTarjeta+","+destino+","+codigo_cajero+","+monto+");";
 					stmt.executeQuery(sql);
 					ResultSet rs=stmt.getResultSet();
 					
@@ -931,17 +910,26 @@ public class Cajero extends JFrame {
 						establecerSaldo();
 						JOptionPane.showMessageDialog(this,"La transferencia se ha realizado correctamente.\n Saldo actual: $"+saldo,"Transferencia finalizada", JOptionPane.INFORMATION_MESSAGE);
 					}
-					else {
-						rs.next();
-						String msg=new String(rs.getBytes(1),"utf8");
-						JOptionPane.showMessageDialog(this,msg,"Error", JOptionPane.ERROR_MESSAGE);
+					else 
+					{
+						if(rs.next()) 
+						{
+							String msg=rs.getString(1);
+							JOptionPane.showMessageDialog(this,msg,"Error", JOptionPane.ERROR_MESSAGE);
+						}
 					}
 			    }
-		    }catch (SQLException exc){
+		    }
+		    catch (SQLException exc)
+		    {
 		    	exc.printStackTrace();
-		    }catch (UnsupportedEncodingException exc){
-		    	exc.printStackTrace();
-		    }catch (java.lang.NumberFormatException e){
+		    	if(exc instanceof MysqlDataTruncation) 
+		    	{
+		    		JOptionPane.showMessageDialog(this,"Monto mayor del permitido.","Error en la entrada", JOptionPane.ERROR_MESSAGE);
+		    	}
+		    }
+		    catch (java.lang.NumberFormatException e)
+		    {
 				JOptionPane.showMessageDialog(this,"Solo se puede ingresar números naturales.","Error en la entrada", JOptionPane.ERROR_MESSAGE);
 			}
 		

@@ -31,7 +31,6 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableModel;
 
@@ -168,13 +167,11 @@ public class Prestamos extends JFrame {
 			contentPane.add(pConsulta);
 			pConsulta.setLayout(null);
 			pConsulta.setVisible(false);
-			//pConsulta.setBorder(new LineBorder(Color.BLUE,2));
 			
 			pClienteSelect = new JPanel();
 			pClienteSelect.setBounds(10, 0, 334, 90);
 			pClienteSelect.setVisible(true);
 			pClienteSelect.setLayout(null);
-			//pClienteSelect.setBorder(new LineBorder(Color.GREEN,2));
 			
 			//Zona de seleccion de cliente
 			lTipoDoc = new JLabel("Tipo de doc");
@@ -219,6 +216,9 @@ public class Prestamos extends JFrame {
 						deshabilitarBotones();
 						lClienteSelect.setText("Vacio");
 						lClienteSelect.setForeground(Color.GRAY);
+						pCreacion.setVisible(false);
+						pPago.setVisible(false);
+						pCliente.setVisible(false);
 						JOptionPane.showMessageDialog(null, "Ingrese un numero y tipo de documento valido.", "Invalido", JOptionPane.ERROR_MESSAGE);
 					}
 				}
@@ -286,7 +286,6 @@ public class Prestamos extends JFrame {
 			pConsulta.add(pCreacion);
 			pCreacion.setVisible(false);
 			pCreacion.setLayout(null);
-			//pCreacion.setBorder(new LineBorder(Color.RED,2));
 			
 			/*Fin creacion panel pCreacion de prestamos*/
 			
@@ -295,7 +294,6 @@ public class Prestamos extends JFrame {
 			pConsulta.add(pPago);
 			pPago.setVisible(false);
 			pPago.setLayout(null);
-			//pPago.setBorder(new LineBorder(Color.RED,2));
 			
 			/*Creacion panel pCliente morosos*/
 			pCliente = new JPanel();
@@ -303,7 +301,6 @@ public class Prestamos extends JFrame {
 			pConsulta.add(pCliente);
 			pCliente.setVisible(false);
 			pCliente.setLayout(null);
-			//pCliente.setBorder(new LineBorder(Color.RED,2));
 			
 			{   
 		        //-----------------Creacion del panel pCreacion-------------------------
@@ -356,6 +353,7 @@ public class Prestamos extends JFrame {
 				bCrearPres.addActionListener(new ActionListener() {
 					public void actionPerformed(ActionEvent e) {
 						oyenteCrearUnPrestamo();
+						tMonto.setText("");
 					}
 				});
 				
@@ -424,7 +422,6 @@ public class Prestamos extends JFrame {
 	               
 	               listaPagos = new JList<String>();
 	               listaPagos.setVisible(true);
-	               //listaPagos.setBorder(new LineBorder(Color.BLACK,2));
 	               scrListaPagos = new JScrollPane(listaPagos);
 	               scrListaPagos.setBounds(620, 50, 170, 200);
 	         	   pPago.add(scrListaPagos, BorderLayout.CENTER);
@@ -460,7 +457,6 @@ public class Prestamos extends JFrame {
 				
 	            scrTablaCliente = new JScrollPane();
 	            scrTablaCliente.setBounds(10,50,1000,200);
-	            //scrTablaCliente.setBorder(new LineBorder(Color.ORANGE,2));
 	            pCliente.add(scrTablaCliente, BorderLayout.CENTER);
 	            
 	            {  
@@ -500,7 +496,6 @@ public class Prestamos extends JFrame {
 	               tablaCliente.setModel(ClienteModel); 
 	               tablaCliente.setAutoCreateRowSorter(true);
 	               tablaCliente.setBounds(10,40,900,200);
-	               //tablaCliente.setBorder(new LineBorder(Color.CYAN,2));
 	            }
 	         }
 		}
@@ -718,11 +713,15 @@ public class Prestamos extends JFrame {
 			{
 				lEstado.setText("Estado del cliente: Habilitado para solicitar prestamo.");
 				bCrearPres.setEnabled(true);
+				tMonto.setEnabled(true);
+				comboPeriodo.setEnabled(true);
 			}
 			else 
 			{
 				lEstado.setText("Estado del cliente: Inhabilitado para solicitar prestamo.");
 				bCrearPres.setEnabled(false);
+				tMonto.setEnabled(false);
+				comboPeriodo.setEnabled(false);
 			}
 			
 			rs1.close();
@@ -851,7 +850,7 @@ public class Prestamos extends JFrame {
 		 {
 			 try
 		      {
-		         Statement stmt = this.conexionBD.createStatement();
+				 Statement stmt = this.conexionBD.createStatement();
 		         String sql = "SELECT tasa FROM tasa_prestamo WHERE periodo="+periodo_elegido+" AND "+monto+" BETWEEN monto_inf AND monto_sup;";
 		         ResultSet rs = stmt.executeQuery(sql);
 		         double tasa = 0.00;

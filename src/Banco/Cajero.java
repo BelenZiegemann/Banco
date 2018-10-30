@@ -21,6 +21,7 @@ import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -72,7 +73,7 @@ public class Cajero extends JFrame {
 	private JLabel lblMonto;
 	private JButton bConfirmar;
 	private JButton bCancelar;
-	private JTextField tMonto;
+	private JTextField tMontoExtraccion;
 	
 	private JPanel pTransferencia;
 	private JLabel lblCajaDestino;
@@ -96,6 +97,9 @@ public class Cajero extends JFrame {
 	private JTable tablaMovPeriodo;
 	private Fechas f = new Fechas();
 	private String desde, hasta, consulta;
+	private double monto, saldo;
+	private int destino;
+	private int codigo_cajero=100;
 	 
 	public Cajero() {
 		super();
@@ -186,6 +190,7 @@ public class Cajero extends JFrame {
 			bConfirmar = new JButton("Confirmar");
 			bConfirmar.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					extraccion();
 				}
 			});
 			bConfirmar.setBounds(203, 135, 112, 26);
@@ -201,11 +206,10 @@ public class Cajero extends JFrame {
 			bCancelar.setBounds(203, 187, 112, 26);
 			pExtraccion.add(bCancelar);
 			
-			tMonto = new JTextField();
-			tMonto.setBounds(203, 52, 112, 20);
-			pExtraccion.add(tMonto);
-			tMonto.setColumns(10);
-		
+			tMontoExtraccion = new JTextField();
+			tMontoExtraccion.setBounds(203, 52, 112, 20);
+			pExtraccion.add(tMontoExtraccion);
+			tMontoExtraccion.setColumns(10);
 			/*Fin creacion panel Extraccion*/
 			
 			/*Creacion panel transferencia*/
@@ -226,6 +230,7 @@ public class Cajero extends JFrame {
 			bConfirmarTransferencia = new JButton("Confirmar");
 			bConfirmarTransferencia.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					transferencia();
 				}
 			});
 			bConfirmarTransferencia.setBounds(212, 189, 112, 23);
@@ -543,7 +548,7 @@ public class Cajero extends JFrame {
 	//Metodo privado para verificar que el usuario sea correcto.
 	private boolean verificacion() {
 		boolean valida = false;
-		consulta="SELECT nro_tarjeta FROM tarjeta WHERE PIN=md5('"+password+"');";
+		consulta="SELECT nro_tarjeta FROM tarjeta WHERE nro_tarjeta="+nroTarjeta+" AND PIN=md5('"+password+"');";
 		try {
 			conectarBD();
 			Statement stmt = conexionBD.createStatement();
@@ -576,6 +581,33 @@ public class Cajero extends JFrame {
 		
 		return valida;
 	 }
+	
+	private boolean verificacionMontoExtraccion() 
+	{
+		String m = tMontoExtraccion.getText();
+		boolean cumple = !m.equals("");
+		if(cumple) 
+		{
+			monto = Double.parseDouble(m);
+			cumple = monto>=0;
+		}
+	    return cumple;
+	}
+	
+	private boolean verificacionMontoTransferencia() 
+	{
+		String m = tMontoTransferencia.getText();
+		String d = tNroDestino.getText();
+		boolean cumple = !m.equals("") && !d.equals("");
+		if(cumple) 
+		{
+			monto = Double.parseDouble(m);
+			cumple = monto>=0;
+			
+			destino = Integer.parseInt(d);
+		}
+	    return cumple;
+	}
 	
 	private void thisComponentShown(ComponentEvent evt) 
 	{
@@ -642,31 +674,44 @@ public class Cajero extends JFrame {
 	      }
 	 }
 	 
+	 private void establecerSaldo() 
+	 {
+		 try
+	      {
+	         Statement stmt = this.conexionBD.createStatement();
+	         String sql = "SELECT DISTINCT saldo FROM tarjeta NATURAL JOIN trans_cajas_ahorro WHERE '"+ nroTarjeta +"'= nro_tarjeta AND PIN=md5('"+password+"');";
+	         ResultSet rs = stmt.executeQuery(sql);
+	         
+	         while (rs.next())
+	         {
+	            saldo = Double.parseDouble(rs.getString("saldo"));
+	         }
+	         rs.close();
+	         stmt.close();
+	      }
+	      catch (SQLException ex)
+	      {
+	         // en caso de error, se muestra la causa en la consola
+	         System.out.println("SQLException: " + ex.getMessage());
+	         System.out.println("SQLState: " + ex.getSQLState());
+	         System.out.println("VendorError: " + ex.getErrorCode());
+	      }
+	 }
 	 //Oyente del boton saldo
 	private void oyenteSaldo(){
 		try
 	      {
-	         // se crea una sentencia o comando jdbc para realizar la consulta 
-	    	 // a partir de la coneccion establecida (conexionBD)
 	         Statement stmt = this.conexionBD.createStatement();
-
-	         // se prepara el string SQL de la consulta
 	         String sql = "SELECT DISTINCT saldo FROM tarjeta NATURAL JOIN trans_cajas_ahorro WHERE '"+ nroTarjeta +"'= nro_tarjeta AND PIN=md5('"+password+"');";
-
-	         // se ejecuta la sentencia y se recibe un resultset
 	         ResultSet rs = stmt.executeQuery(sql);
-	         // se recorre el resulset y se actualiza la tabla en pantalla
 	         ((DefaultTableModel) this.tablaSaldo.getModel()).setRowCount(0);
 	         int i = 0;
 	         while (rs.next())
 	         {
-	        	 // agrega una fila al modelo de la tabla
 	            ((DefaultTableModel) this.tablaSaldo.getModel()).setRowCount(i + 1);
-	            // se agregan a la tabla los datos correspondientes cada celda de la fila recuperada
 	            this.tablaSaldo.setValueAt(rs.getString("saldo"), i, 0);       
 	            i++;
 	         }
-	         // se cierran los recursos utilizados 
 	         rs.close();
 	         stmt.close();
 	      }
@@ -789,5 +834,117 @@ public class Cajero extends JFrame {
 	         System.out.println("VendorError: " + ex.getErrorCode());
 	      }
 	}
+
+	/*private void extraccion() {
+		try 
+		{
+			if(verificacionMontoExtraccion()) 
+			{
+				Statement stmt= this.conexionBD.createStatement();
+				ResultSet rs = stmt.executeQuery("CALL extraccion("+nroTarjeta+","+codigo_cajero+","+monto+");");
+				if(rs==null)
+				{
+					establecerSaldo();
+					JOptionPane.showMessageDialog(null,"La extracción se ha realizado correctamente.\n Saldo actual:"+saldo,"Extracción finalizada", JOptionPane.INFORMATION_MESSAGE);
+				}
+				else 
+				{
+					JOptionPane.showMessageDialog(this,"La extraccion no se pudo realizar por razones de la base de datos.","Error", JOptionPane.ERROR_MESSAGE);
+				}
+			}
+		} 
+		catch (SQLException ex)
+		{
+			// en caso de error, se muestra la causa en la consola
+			System.out.println("SQLException: " + ex.getMessage());
+			System.out.println("SQLState: " + ex.getSQLState());
+			System.out.println("VendorError: " + ex.getErrorCode());
+		}
+	}*/
+	
+	private void extraccion() {
 		
+		try {
+		if(!verificacionMontoExtraccion()) 
+		{
+			JOptionPane.showMessageDialog(this,"Se debe ingresar un monto.","Error", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		else
+		{
+			if (monto <=0){
+				JOptionPane.showMessageDialog(this,"El monto debe ser mayor o igual a 0.","Error", JOptionPane.ERROR_MESSAGE);
+				return;
+			}
+			else {
+				int n = JOptionPane.showConfirmDialog(null, "¿Está seguro que desea retirar $"+monto+"?", "Confirmar operación",JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+				if (n == JOptionPane.YES_OPTION) {
+					Statement stmt= this.conexionBD.createStatement();
+					String sql = "CALL extraccion("+nroTarjeta+","+codigo_cajero+","+monto+");";
+					System.out.println(sql);
+					stmt.executeQuery(sql);
+					ResultSet rs=stmt.getResultSet();
+					if(rs==null){
+						establecerSaldo();
+						JOptionPane.showMessageDialog(null,"La extracción se ha realizado correctamente.\n Saldo actual: $"+saldo,"Extracción finalizada", JOptionPane.INFORMATION_MESSAGE);
+					}
+					else {
+						rs.next();
+						String msg=new String(rs.getBytes(1),"utf8");
+						JOptionPane.showMessageDialog(this,msg,"Error", JOptionPane.ERROR_MESSAGE);
+					}
+				}
+				else
+					return;
+			}
+			
+		}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		} catch (NumberFormatException e){
+			JOptionPane.showMessageDialog(this,"Solo se puede ingresar números naturales.","Error", JOptionPane.ERROR_MESSAGE);
+		} catch (UnsupportedEncodingException e){
+			e.printStackTrace();
+		}
+	}
+	
+	
+	private void transferencia() 
+	{
+	    if(!verificacionMontoTransferencia()) 
+	    {
+	    	JOptionPane.showMessageDialog(this,"Se debe ingresar la caja de ahorro destino y un monto","Error al ingresar los datos", JOptionPane.INFORMATION_MESSAGE);
+	    }
+	    else 
+	    {
+		    try{
+		    	int result = JOptionPane.showConfirmDialog(null,"¿Esta seguro de realizar esta operación?", "Transferencia", JOptionPane.OK_CANCEL_OPTION);
+			    if (result == JOptionPane.OK_OPTION) {
+			    	Statement stmt= conexionBD.createStatement();
+			    	String sql = "CALL transferencia("+nroTarjeta+","+destino+","+codigo_cajero+","+monto+");";
+			    	System.out.println(sql);
+					stmt.executeQuery(sql);
+					ResultSet rs=stmt.getResultSet();
+					
+					if(rs==null)
+					{	
+						establecerSaldo();
+						JOptionPane.showMessageDialog(this,"La transferencia se ha realizado correctamente.\n Saldo actual: $"+saldo,"Transferencia finalizada", JOptionPane.INFORMATION_MESSAGE);
+					}
+					else {
+						rs.next();
+						String msg=new String(rs.getBytes(1),"utf8");
+						JOptionPane.showMessageDialog(this,msg,"Error", JOptionPane.ERROR_MESSAGE);
+					}
+			    }
+		    }catch (SQLException exc){
+		    	exc.printStackTrace();
+		    }catch (UnsupportedEncodingException exc){
+		    	exc.printStackTrace();
+		    }catch (java.lang.NumberFormatException e){
+				JOptionPane.showMessageDialog(this,"Solo se puede ingresar números naturales.","Error en la entrada", JOptionPane.ERROR_MESSAGE);
+			}
+		
+	    }
+	}
 }

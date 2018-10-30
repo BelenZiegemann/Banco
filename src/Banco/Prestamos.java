@@ -211,7 +211,6 @@ public class Prestamos extends JFrame {
 						lClienteSelect.setForeground(Color.DARK_GRAY);
 						lClienteSelect.setText(nroDoc+" ("+tipoDoc+")");
 						habilitarBotones();
-						establecerEstado();
 						establecerNroCliente();
 					}
 					else 
@@ -245,6 +244,8 @@ public class Prestamos extends JFrame {
 					pCreacion.setVisible(true);
 					pPago.setVisible(false);
 					pCliente.setVisible(false);
+					establecerEstado();
+					refrescarComboPeriodo();
 				}
 			});
 			bCreacion.setBounds(10, 100, 133, 23);
@@ -257,6 +258,7 @@ public class Prestamos extends JFrame {
 					pCreacion.setVisible(false);
 					pCliente.setVisible(false);
 					oyentePagoCuotas();
+					refrescarListaPagos();
 				}
 			});
 			bPago.setBounds(310, 100, 107, 23);
@@ -431,6 +433,7 @@ public class Prestamos extends JFrame {
 				   bPagarCuotas.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
 							oyentePagarSeleccionadas();
+							oyentePagoCuotas();
 						}
 					});
 	            }
@@ -789,7 +792,6 @@ public class Prestamos extends JFrame {
 	            //se intenta establecer la conección
 	            this.conexionBD = DriverManager.getConnection(uriConexion, usuario, clave);
 	            
-	            refrescarComboPeriodo();
 	         }
 	         catch (SQLException ex)
 	         {
@@ -867,10 +869,32 @@ public class Prestamos extends JFrame {
 	
 	private void oyentePagarSeleccionadas()
 	{
+		int flag=0;
+		int nro_pres_temp, nro_pago_temp;
+		while(flag<prestamos_select.size() && flag<pagos_select.size()) 
+		{
+			nro_pres_temp = prestamos_select.get(flag);
+			nro_pago_temp = pagos_select.get(flag);
+			try
+		      {
+		         Statement stmt = this.conexionBD.createStatement();
+		         String sql = "UPDATE pago SET fecha_pago=CURDATE() WHERE nro_prestamo="+nro_pres_temp+" AND nro_pago="+nro_pago_temp+";";
+		         stmt.execute(sql);
+		         stmt.close();
+		      }
+		      catch (SQLException ex)
+		      {
+		         System.out.println("SQLException: " + ex.getMessage());
+		         System.out.println("SQLState: " + ex.getSQLState());
+		         System.out.println("VendorError: " + ex.getErrorCode());
+		      }
+			flag++;
+		}
+		
+		//Se vacia todo
 		prestamos_select= new LinkedList<Integer>();
     	pagos_select= new LinkedList<Integer>();
-		lista_select= new LinkedList<String>();
-		listaPagos.setListData(lista_select.toArray(new String[lista_select.size()]));
+		refrescarListaPagos();
 	}
 	
 	private void oyentePagoCuotas()
@@ -906,13 +930,12 @@ public class Prestamos extends JFrame {
 	      }
 	}
 	
-	
 	private void oyenteClientesMorosos(){
 		 try
 	      {
 	         Statement stmt = this.conexionBD.createStatement();
 	         String sql = "SELECT nro_cliente, tipo_doc, nro_doc, nombre, apellido, nro_prestamo, monto, cant_meses, valor_cuota, COUNT(fecha_venc) AS cuotas_morosas "
-	         		+ "FROM pago NATURAL JOIN prestamo NATURAL JOIN cliente WHERE nro_doc="+nroDoc+" AND tipo_doc='"+tipoDoc+"' AND DATEDIFF(CURDATE(), fecha_venc)>=60 GROUP BY nro_prestamo;";
+	         		+ "FROM pago NATURAL JOIN prestamo NATURAL JOIN cliente WHERE fecha_pago IS NULL AND DATEDIFF(CURDATE(), fecha_venc)>0 GROUP BY nro_prestamo HAVING COUNT(fecha_venc)>=2;";
 
 	         ResultSet rs = stmt.executeQuery(sql);
 	         ((DefaultTableModel) this.tablaCliente.getModel()).setRowCount(0);
